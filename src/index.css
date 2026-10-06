@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* You can add any custom global styles below here */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
