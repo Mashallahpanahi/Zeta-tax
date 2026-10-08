@@ -4,7 +4,8 @@ import DashboardLayout from "../components/layout/DashboardLayout/DashboardLayou
 import IncomePage from "../pages/Income/income";
 import HomePage from "../pages/Dashboard/Home-page";
 import ExpensesPage from "../pages/Expenses/Expenses";
-import EmployeesPage from "../pages/Employees/employeesPage";
+import EmployeesPage from "../pages/Employees/Register";
+import ContractPage from "../pages/Employees/contract";
 
 const AppRoutes = () => (
   <BrowserRouter>
@@ -15,6 +16,7 @@ const AppRoutes = () => (
         <Route path="income" element={<IncomePage />} />
         <Route path="expenses" element={<ExpensesPage />} />
         <Route path="employees" element={<EmployeesPage />} />
+        <Route path="contracts" element={<ContractPage />} />
       </Route>
     </Routes>
   </BrowserRouter>

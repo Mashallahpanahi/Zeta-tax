@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { TbDatabaseHeart } from "react-icons/tb";
 import { IoManSharp } from "react-icons/io5";
+import { LiaFileContractSolid } from "react-icons/lia";
 import {
   FaHome,
   FaMoneyBillWave,
@@ -36,8 +37,13 @@ const Sidebar = () => {
       subItems: [
         {
           path: "/employees",
-          label: "All Employees",
+          label: "Registered new",
           icon: <IoManSharp />,
+        },
+        {
+          path: "/contracts",
+          label: "Contract",
+          icon: <LiaFileContractSolid />,
         },
       ],
     },
