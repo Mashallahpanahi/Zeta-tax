@@ -1,8 +1,7 @@
-
 import { useEffect, useState } from "react";
 import {
   getAllContracts,
-  getActiveEmployees,
+  getAllRegisteredEmployees,
   updateContract,
   type Employee,
   type EmployeeContract,
@@ -23,7 +22,7 @@ export default function ContractPage() {
     loading: loadingEmployees,
     error: employeeError,
     refetch: refetchEmployees,
-  } = getActiveEmployees();
+  } = getAllRegisteredEmployees();
 
   const { update, loading: savingStatus, } = updateContract();
   const contracts = contractData ?? [];
@@ -63,7 +62,7 @@ export default function ContractPage() {
     }
 
     const confirmed = window.confirm(
-      "Are you sure you want to deactivate this contract?",
+      `Are you sure you want to deactivate ${getEmployee(contract)?.first_name ?? ""} ${getEmployee(contract)?.last_name ?? ""}'s contract?`,
     );
 
     if (!confirmed) return;

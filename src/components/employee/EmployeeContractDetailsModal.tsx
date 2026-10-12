@@ -1,5 +1,6 @@
 
 import type { EmployeeContract } from "../../api/employeeContractApi";
+
 interface Props {
     contract: EmployeeContract | null;
     employeeName: string;
@@ -14,30 +15,21 @@ export default function EmployeeContractDetailsModal({
     if (!contract) return null;
 
     const details = [
-        { label: "Employee Name", value: employeeName },
+        { label: "Employee Name", value: employeeName || "Employee not found" },
         { label: "Employee ID", value: contract.employee_id },
-        {
-            label: "Hire Date",
-            value: contract.hire_date?.slice(0, 10) || "—",
-        },
+        { label: "Hire Date", value: contract.hire_date?.slice(0, 10) || "—" },
         {
             label: "Termination Date",
             value: contract.termination_date?.slice(0, 10) || "—",
         },
         { label: "Status", value: contract.status || "—" },
-        {
-            label: "Position",
-            value: contract.position_type || "—",
-        },
+        { label: "Position", value: contract.position_type || "—" },
         {
             label: "Base Salary",
             value: `${Number(contract.base_salary).toLocaleString()} ${contract.currency ?? ""}`.trim(),
         },
         { label: "Currency", value: contract.currency || "—" },
-        {
-            label: "Employee Type",
-            value: contract.employee_type || "—",
-        },
+        { label: "Employee Type", value: contract.employee_type || "—" },
     ];
 
     return (
@@ -76,7 +68,7 @@ export default function EmployeeContractDetailsModal({
                             key={detail.label}
                             className="min-w-0 rounded-lg border border-gray-100 bg-gray-50 p-4"
                         >
-                            <p className="mb-1 text-xs font-semibold capitalize tracking-wide text-gray-500">
+                            <p className="mb-1 text-xs font-semibold tracking-wide text-gray-500">
                                 {detail.label}
                             </p>
 
