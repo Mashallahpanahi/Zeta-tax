@@ -153,7 +153,7 @@ export default function RegisteredNewEmployeePage() {
                       disabled={updating}
                       className="bg-red-500/40 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm shadow-sm transition disabled:opacity-50"
                     >
-                      {updating ? "..." : "Set Inactive"}
+                      {updating ? "..." : "Deactivate"}
                     </button>
                   </div>
                 </td>
