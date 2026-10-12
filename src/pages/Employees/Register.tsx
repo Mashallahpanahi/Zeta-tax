@@ -136,14 +136,14 @@ export default function RegisteredNewEmployeePage() {
                     {/* ✅ View More */}
                     <button
                       onClick={() => setViewEmployee(emp)}
-                      className="bg-blue-firstRate/40 hover:bg-blue-firstRate text-white px-3 py-1.5 rounded-lg text-sm shadow-sm transition"
+                      className="bg-blue-firstRate hover:bg-blue-firstRate/70 text-white px-3 py-1.5 rounded-lg text-sm shadow-sm transition"
                     >
                       View More
                     </button>
 
                     <button
                       onClick={() => setEditEmployee(emp)}
-                      className="bg-yellow-500/40 hover:bg-yellow-600 text-white px-3 py-1.5 rounded-lg text-sm shadow-sm transition"
+                      className="bg-yellow-500 hover:bg-yellow-600/70 text-white px-3 py-1.5 rounded-lg text-sm shadow-sm transition"
                     >
                       Edit
                     </button>
@@ -151,7 +151,7 @@ export default function RegisteredNewEmployeePage() {
                     <button
                       onClick={() => handleInactive(emp)}
                       disabled={updating}
-                      className="bg-red-500/40 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm shadow-sm transition disabled:opacity-50"
+                      className="bg-red-500 hover:bg-red-600/70 text-white px-3 py-1.5 rounded-lg text-sm shadow-sm transition disabled:opacity-50"
                     >
                       {updating ? "..." : "Deactivate"}
                     </button>
