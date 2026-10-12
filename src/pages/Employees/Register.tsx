@@ -6,6 +6,7 @@ import {
 } from "../../api/employeeApi";
 import RegisterNewEmployeeModal from "../../components/employee/RegisterNewEmployeeModal";
 import UpdateEmployeeModal from "../../components/employee/UpdateEmployeeModal";
+import ViewMoreDetailEmployeeModal from "../../components/employee/viewmoreDetailEmployeeModal";
 
 export default function RegisteredNewEmployeePage() {
   const {
@@ -20,6 +21,11 @@ export default function RegisteredNewEmployeePage() {
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editEmployee, setEditEmployee] = useState<GetAllEmployeeType | null>(
+    null,
+  );
+
+  // ✅ employee to show details for
+  const [viewEmployee, setViewEmployee] = useState<GetAllEmployeeType | null>(
     null,
   );
 
@@ -46,7 +52,7 @@ export default function RegisteredNewEmployeePage() {
     const confirmed = window.confirm(
       `Are you sure you want to set ${emp.first_name} ${emp.last_name} as inactive?`,
     );
-    if (!confirmed) return; // user clicked Cancel → do nothing
+    if (!confirmed) return;
 
     const ok = await update(emp.registration_id, { status: "inactive" });
     if (ok) refetch();
@@ -127,6 +133,14 @@ export default function RegisteredNewEmployeePage() {
 
                 <td className="p-3">
                   <div className="flex gap-2">
+                    {/* ✅ View More */}
+                    <button
+                      onClick={() => setViewEmployee(emp)}
+                      className="bg-blue-firstRate/40 hover:bg-blue-firstRate text-white px-3 py-1.5 rounded-lg text-sm shadow-sm transition"
+                    >
+                      View More
+                    </button>
+
                     <button
                       onClick={() => setEditEmployee(emp)}
                       className="bg-yellow-500/40 hover:bg-yellow-600 text-white px-3 py-1.5 rounded-lg text-sm shadow-sm transition"
@@ -134,7 +148,6 @@ export default function RegisteredNewEmployeePage() {
                       Edit
                     </button>
 
-                    {/* ✅ pass the whole employee now */}
                     <button
                       onClick={() => handleInactive(emp)}
                       disabled={updating}
@@ -170,6 +183,13 @@ export default function RegisteredNewEmployeePage() {
         employee={editEmployee}
         onClose={() => setEditEmployee(null)}
         onSuccess={refetch}
+      />
+
+      {/* ✅ View More modal */}
+      <ViewMoreDetailEmployeeModal
+        isOpen={!!viewEmployee}
+        employee={viewEmployee}
+        onClose={() => setViewEmployee(null)}
       />
     </div>
   );
