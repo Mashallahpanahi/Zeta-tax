@@ -6,7 +6,8 @@ import {
   type Employee,
   type EmployeeContract,
 } from "../../api/employeeContractApi";
-import EmployeeContractModal from "../../components/employee/EmployeeContractModel";
+import CreateEmployeeContractModal from "../../components/employee/CreateEmployeeContractModal";
+import UpdateEmployeeContractModal from "../../components/employee/UpdateEmployeeContractModal";
 import EmployeeContractDetailsModal from "../../components/employee/EmployeeContractDetailsModal";
 
 export default function ContractPage() {
@@ -265,11 +266,26 @@ export default function ContractPage() {
         </table>
       </div>
 
-      {/* Create and edit contract modal */}
-      <EmployeeContractModal
-        isOpen={isCreateOpen || !!editContract}
+      <CreateEmployeeContractModal
+        isOpen={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+        onSuccess={handleContractSuccess}
+      />
+
+      <UpdateEmployeeContractModal
+        isOpen={!!editContract}
         contract={editContract}
-        onClose={closeContractModal}
+        employeeName={
+          editContract
+            ? [
+              getEmployee(editContract)?.first_name,
+              getEmployee(editContract)?.last_name,
+            ]
+              .filter(Boolean)
+              .join(" ") || "Employee not found"
+            : ""
+        }
+        onClose={() => setEditContract(null)}
         onSuccess={handleContractSuccess}
       />
 
