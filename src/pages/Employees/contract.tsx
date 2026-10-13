@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import {
-  getAllContracts,
+  getActiveContracts,
   getAllRegisteredEmployees,
   updateContract,
   type Employee,
   type EmployeeContract,
 } from "../../api/employeeContractApi";
+
 import CreateEmployeeContractModal from "../../components/employee/CreateEmployeeContractModal";
 import UpdateEmployeeContractModal from "../../components/employee/UpdateEmployeeContractModal";
 import EmployeeContractDetailsModal from "../../components/employee/EmployeeContractDetailsModal";
@@ -17,7 +18,7 @@ export default function ContractPage() {
     loading: loadingContracts,
     error: contractError,
     refetch: refetchContracts,
-  } = getAllContracts();
+  } = getActiveContracts();
   const navigate = useNavigate();
 
   const {
@@ -28,9 +29,8 @@ export default function ContractPage() {
   } = getAllRegisteredEmployees();
 
   const { update, loading: savingStatus, } = updateContract();
-  const contracts = (contractData ?? []).filter(
-    (contract) => contract.status?.toLowerCase() === "active");
 
+  const contracts = contractData ?? [];
   const employees = employeeData ?? [];
 
   const [message, setMessage] = useState("");

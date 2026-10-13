@@ -3,7 +3,7 @@ import { useCreate } from "../hooks/useCreate";
 import { useUpdate } from "../hooks/useUpdate";
 
 // ---------- Configuration ----------
-const BASE_URL = "http://localhost:3001";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // ---------- Types ----------
 export interface Employee {
@@ -57,3 +57,6 @@ export const createContract = () =>
 
 export const updateContract = () =>
     useUpdate<EmployeeContract>(`${BASE_URL}/employee-contract`);
+export const getActiveContracts = () => useFetch<EmployeeContract[]>(
+    `${BASE_URL}/employee-contract/active`
+);
