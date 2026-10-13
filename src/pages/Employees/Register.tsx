@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   getAllEmployees,
   updateEmployee,
@@ -9,6 +10,8 @@ import UpdateEmployeeModal from "../../components/employee/UpdateEmployeeModal";
 import ViewMoreDetailEmployeeModal from "../../components/employee/viewmoreDetailEmployeeModal";
 
 export default function RegisteredNewEmployeePage() {
+  const navigate = useNavigate();
+
   const {
     data: employees,
     message,
@@ -23,13 +26,10 @@ export default function RegisteredNewEmployeePage() {
   const [editEmployee, setEditEmployee] = useState<GetAllEmployeeType | null>(
     null,
   );
-
-  // ✅ employee to show details for
   const [viewEmployee, setViewEmployee] = useState<GetAllEmployeeType | null>(
     null,
   );
 
-  // ✅ message that auto-hides after 5 seconds
   const [visibleMessage, setVisibleMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -43,11 +43,9 @@ export default function RegisteredNewEmployeePage() {
     return () => clearTimeout(timer);
   }, [message]);
 
-  // ✅ Only show active employees
   const activeEmployees =
     employees?.filter((emp) => emp.status === "active") ?? [];
 
-  // ✅ Ask with window.confirm() before setting inactive
   const handleInactive = async (emp: GetAllEmployeeType) => {
     const confirmed = window.confirm(
       `Are you sure you want to set ${emp.first_name} ${emp.last_name} as inactive?`,
@@ -67,15 +65,24 @@ export default function RegisteredNewEmployeePage() {
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">Active Employees</h1>
 
-        <button
-          onClick={() => setIsCreateOpen(true)}
-          className="bg-blue-firstRate hover:bg-blue-firstRate/90 text-white px-4 py-2 rounded-lg shadow-sm transition"
-        >
-          + Register new employee
-        </button>
+        <div className="flex gap-2">
+          {/* ✅ History button — navigates to history page */}
+          <button
+            onClick={() => navigate("/employee-register-history")}
+            className="bg-gray-200 text-blue-firstRate font-semibold hover:bg-gray-300  px-4 py-2 rounded-lg shadow-sm transition"
+          >
+            History
+          </button>
+
+          <button
+            onClick={() => setIsCreateOpen(true)}
+            className="bg-blue-firstRate hover:bg-blue-firstRate/90 font-semibold text-white px-4 py-2 rounded-lg shadow-sm transition"
+          >
+            + Register new employee
+          </button>
+        </div>
       </div>
 
-      {/* ✅ auto-hiding message */}
       {visibleMessage && (
         <p className="text-sm text-green-600 transition-opacity duration-500">
           {visibleMessage}
@@ -133,7 +140,6 @@ export default function RegisteredNewEmployeePage() {
 
                 <td className="p-3">
                   <div className="flex gap-2">
-                    {/* ✅ View More */}
                     <button
                       onClick={() => setViewEmployee(emp)}
                       className="bg-blue-firstRate hover:bg-blue-firstRate/70 text-white px-3 py-1.5 rounded-lg text-sm shadow-sm transition"
@@ -185,7 +191,6 @@ export default function RegisteredNewEmployeePage() {
         onSuccess={refetch}
       />
 
-      {/* ✅ View More modal */}
       <ViewMoreDetailEmployeeModal
         isOpen={!!viewEmployee}
         employee={viewEmployee}

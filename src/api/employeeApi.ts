@@ -41,6 +41,10 @@ export interface CreateEmployeeType {
 // Type for updating — everything optional
 export type UpdateEmployeeType = Partial<CreateEmployeeType>;
 
+// ✅ History page — ALL employees (active + inactive)
+export const getAllEmployeesHistory = () =>
+  useFetch<GetAllEmployeeType[]>(`${BASE_URL}/employee-register/inactive`);
+
 // ---------- GET ----------
 export const getAllEmployees = () =>
   useFetch<GetAllEmployeeType[]>(`${BASE_URL}/employee-register/active`);
