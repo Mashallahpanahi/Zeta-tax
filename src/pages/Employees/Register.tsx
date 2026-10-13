@@ -63,13 +63,21 @@ export default function RegisteredNewEmployeePage() {
     <div className="p-6 space-y-6">
       {/* ---------- TOP BAR ---------- */}
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Active Employees</h1>
+        <div className="flex items-baseline gap-3">
+          <h1 className="text-xl font-bold">Active Employees</h1>
+
+          {/* // ✅ inline message next to the heading
+          {visibleMessage && (
+            <p className="text-sm text-green-600 transition-opacity duration-500">
+              {visibleMessage}
+            </p>
+          )} */}
+        </div>
 
         <div className="flex gap-2">
-          {/* ✅ History button — navigates to history page */}
           <button
             onClick={() => navigate("/employee-register-history")}
-            className="bg-gray-200 text-blue-firstRate font-semibold hover:bg-gray-300  px-4 py-2 rounded-lg shadow-sm transition"
+            className="bg-gray-200 text-blue-firstRate font-semibold hover:bg-gray-300 px-4 py-2 rounded-lg shadow-sm transition"
           >
             History
           </button>
@@ -82,12 +90,6 @@ export default function RegisteredNewEmployeePage() {
           </button>
         </div>
       </div>
-
-      {visibleMessage && (
-        <p className="text-sm text-green-600 transition-opacity duration-500">
-          {visibleMessage}
-        </p>
-      )}
 
       {updateError && (
         <p className="text-sm text-red-500">Update: {updateError}</p>

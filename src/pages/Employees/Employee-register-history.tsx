@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  getAllEmployeesHistory,        // ✅ history route: /employee-register
+  getAllEmployeesHistory, // ✅ history route: /employee-register
   updateEmployee,
   type GetAllEmployeeType,
 } from "../../api/employeeApi";
@@ -21,7 +21,7 @@ export default function EmployeeRegisterHistory() {
   const { update, loading: updating, error: updateError } = updateEmployee();
 
   const [viewEmployee, setViewEmployee] = useState<GetAllEmployeeType | null>(
-    null
+    null,
   );
   const [visibleMessage, setVisibleMessage] = useState<string | null>(null);
 
@@ -38,7 +38,7 @@ export default function EmployeeRegisterHistory() {
 
   const handleActivate = async (emp: GetAllEmployeeType) => {
     const confirmed = window.confirm(
-      `Activate ${emp.first_name} ${emp.last_name} again?`
+      `Activate ${emp.first_name} ${emp.last_name} again?`,
     );
     if (!confirmed) return;
 
@@ -48,7 +48,7 @@ export default function EmployeeRegisterHistory() {
 
   const handleDeactivate = async (emp: GetAllEmployeeType) => {
     const confirmed = window.confirm(
-      `Deactivate ${emp.first_name} ${emp.last_name}?`
+      `Deactivate ${emp.first_name} ${emp.last_name}?`,
     );
     if (!confirmed) return;
 
@@ -62,22 +62,26 @@ export default function EmployeeRegisterHistory() {
   return (
     <div className="p-6 space-y-6">
       {/* ---------- TOP BAR ---------- */}
+      {/* ---------- TOP BAR ---------- */}
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Employee Register History</h1>
+        <div className="flex items-baseline gap-3">
+          <h1 className="text-xl font-bold">Employee Register History</h1>
+
+          {/* //✅ inline message next to the heading
+          {visibleMessage && (
+            <p className="text-sm text-green-600 transition-opacity duration-500">
+              {visibleMessage}
+            </p>
+          )} */}
+        </div>
 
         <button
           onClick={() => navigate("/employees")}
-          className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg shadow-sm transition"
+          className="bg-gray-100 hover:bg-gray-300 text-blue-firstRate font-semibold px-4 py-2 rounded-lg shadow-md transition"
         >
-          ← Back to Active
+          ← Back
         </button>
       </div>
-
-      {visibleMessage && (
-        <p className="text-sm text-green-600 transition-opacity duration-500">
-          {visibleMessage}
-        </p>
-      )}
 
       {updateError && (
         <p className="text-sm text-red-500">Update: {updateError}</p>
@@ -88,14 +92,30 @@ export default function EmployeeRegisterHistory() {
         <table className="w-full border-collapse">
           <thead className="bg-gray-50">
             <tr>
-              <th className="p-3 text-left text-sm font-semibold text-gray-700">ID</th>
-              <th className="p-3 text-left text-sm font-semibold text-gray-700">First Name</th>
-              <th className="p-3 text-left text-sm font-semibold text-gray-700">Last Name</th>
-              <th className="p-3 text-left text-sm font-semibold text-gray-700">Email</th>
-              <th className="p-3 text-left text-sm font-semibold text-gray-700">Phone</th>
-              <th className="p-3 text-left text-sm font-semibold text-gray-700">TIN</th>
-              <th className="p-3 text-left text-sm font-semibold text-gray-700">Status</th>
-              <th className="p-3 text-left text-sm font-semibold text-gray-700">Actions</th>
+              <th className="p-3 text-left text-sm font-semibold text-gray-700">
+                ID
+              </th>
+              <th className="p-3 text-left text-sm font-semibold text-gray-700">
+                First Name
+              </th>
+              <th className="p-3 text-left text-sm font-semibold text-gray-700">
+                Last Name
+              </th>
+              <th className="p-3 text-left text-sm font-semibold text-gray-700">
+                Email
+              </th>
+              <th className="p-3 text-left text-sm font-semibold text-gray-700">
+                Phone
+              </th>
+              <th className="p-3 text-left text-sm font-semibold text-gray-700">
+                TIN
+              </th>
+              <th className="p-3 text-left text-sm font-semibold text-gray-700">
+                Status
+              </th>
+              <th className="p-3 text-left text-sm font-semibold text-gray-700">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
