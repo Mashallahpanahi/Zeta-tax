@@ -127,11 +127,10 @@ export default function RegisteredNewEmployeePage() {
             {activeEmployees.map((emp, idx) => (
               <tr
                 key={emp.registration_id}
-                className={`transition hover:bg-blue-50 ${
-                  idx !== activeEmployees.length - 1
+                className={`transition hover:bg-blue-50 ${idx !== activeEmployees.length - 1
                     ? "border-b border-gray-100"
                     : ""
-                }`}
+                  }`}
               >
                 <td className="p-3 text-sm">{emp.registration_id}</td>
                 <td className="p-3 text-sm">{emp.first_name}</td>

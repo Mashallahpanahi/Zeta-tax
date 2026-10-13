@@ -7,7 +7,7 @@ import ExpensesPage from "../pages/Expenses/Expenses";
 import EmployeesPage from "../pages/Employees/Register";
 import ContractPage from "../pages/Employees/contract";
 import EmployeeRegisterHistory from "../pages/Employees/Employee-register-history";
-
+import EmployeeContractHistory from "../pages/Employees/EmployeeContractHistory";
 const AppRoutes = () => (
   <BrowserRouter>
     <Routes>
@@ -20,8 +20,12 @@ const AppRoutes = () => (
         <Route path="contracts" element={<ContractPage />} />
         <Route
           path="employee-register-history"
-          element={<EmployeeRegisterHistory />}
+          element={<EmployeeRegisterHistory />} />
+        <Route
+          path="contract-history"
+          element={<EmployeeContractHistory />}
         />
+
       </Route>
     </Routes>
   </BrowserRouter>

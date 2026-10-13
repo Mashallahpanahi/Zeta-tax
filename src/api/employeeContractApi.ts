@@ -40,6 +40,12 @@ export type UpdateEmployeeContractType =
 export const getAllContracts = () =>
     useFetch<EmployeeContract[]>(`${BASE_URL}/employee-contract`);
 
+// Get inactive and terminated contracts
+export const getNotActiveContracts = () =>
+    useFetch<EmployeeContract[]>(
+        `${BASE_URL}/employee-contract/not-active`
+    );
+
 export const getActiveEmployees = () =>
     useFetch<Employee[]>(`${BASE_URL}/employee-register/active`);
 

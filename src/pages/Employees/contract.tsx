@@ -9,6 +9,7 @@ import {
 import CreateEmployeeContractModal from "../../components/employee/CreateEmployeeContractModal";
 import UpdateEmployeeContractModal from "../../components/employee/UpdateEmployeeContractModal";
 import EmployeeContractDetailsModal from "../../components/employee/EmployeeContractDetailsModal";
+import { useNavigate } from "react-router-dom";
 
 export default function ContractPage() {
   const {
@@ -17,6 +18,7 @@ export default function ContractPage() {
     error: contractError,
     refetch: refetchContracts,
   } = getAllContracts();
+  const navigate = useNavigate();
 
   const {
     data: employeeData,
@@ -26,7 +28,9 @@ export default function ContractPage() {
   } = getAllRegisteredEmployees();
 
   const { update, loading: savingStatus, } = updateContract();
-  const contracts = contractData ?? [];
+  const contracts = (contractData ?? []).filter(
+    (contract) => contract.status?.toLowerCase() === "active");
+
   const employees = employeeData ?? [];
 
   const [message, setMessage] = useState("");
@@ -81,8 +85,7 @@ export default function ContractPage() {
       );
       return;
     }
-    setMessage("Contract status updated.");
-    refetch();
+    navigate("/contract-history");
   }
 
   function getEmployee(contract: EmployeeContract) {
@@ -146,16 +149,27 @@ export default function ContractPage() {
           Employee Contracts
         </h1>
 
-        <button
-          type="button"
-          onClick={() => {
-            setEditContract(null);
-            setIsCreateOpen(true);
-          }}
-          className="rounded-lg bg-blue-firstRate px-4 py-2 text-white shadow-sm transition hover:opacity-90"
-        >
-          + Create New Contract
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => navigate("/contract-history")}
+            className="rounded-lg bg-gray-200 px-4 py-2 font-semibold text-blue-firstRate shadow-sm transition hover:bg-gray-300"
+          >
+            History
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setEditContract(null);
+              setIsCreateOpen(true);
+            }}
+            className="rounded-lg bg-blue-firstRate px-4 py-2 font-semibold text-white shadow-sm transition hover:bg-blue-firstRate/90"
+          >
+            + Create new Contract
+          </button>
+        </div>
+
       </div>
 
       {message && (
