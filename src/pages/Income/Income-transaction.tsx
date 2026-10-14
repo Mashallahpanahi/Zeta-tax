@@ -8,14 +8,6 @@ import {
 
 const BASE_URL = "http://localhost:3001";
 
-type ExchangeRecord = {
-  amount_af?: string | number;
-  received_income_transaction_id?: string | number;
-  received_income_transaction?: {
-    income_id?: string | number;
-  };
-};
-
 type NewIncomeForm = {
   date: string;
   amount: string;
@@ -50,22 +42,8 @@ function getTransactionId(transaction: IncomeTransactionType) {
   return null;
 }
 
-function getIncomeId(transaction: IncomeTransactionType) {
-  const id =
-    transaction.income_id ??
-    transaction.id ??
-    transaction.transaction_id ??
-    transaction._id;
-
-  if (typeof id === "string" || typeof id === "number") {
-    return String(id);
-  }
-
-  return null;
-}
-
 function formatValue(value: unknown): string {
-  if (value === null || value === undefined) {
+  if (value === null || value === undefined || value === "") {
     return "-";
   }
 
@@ -76,17 +54,22 @@ function formatValue(value: unknown): string {
   return String(value);
 }
 
-function formatAFN(value: string | number): string {
-  const amount = Number(value);
+function formatColumnTitle(column: string): string {
+  const titles: Record<string, string> = {
+    date: "Date",
+    amount: "Amount",
+    currency: "Currency",
+    recorded_by: "Recorded By",
+    received_from: "Received From",
+    income_type: "Income Type",
+    description: "Description",
+    used: "Used",
+  };
 
-  if (!Number.isFinite(amount)) {
-    return "-";
-  }
-
-  return `${amount.toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })} AFN`;
+  return (
+    titles[column] ??
+    column.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())
+  );
 }
 
 export default function IncomeTransactionPage() {
@@ -115,10 +98,6 @@ export default function IncomeTransactionPage() {
   const [localError, setLocalError] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const [convertedAmounts, setConvertedAmounts] = useState<
-    Record<string, string>
-  >({});
-
   const [showAddForm, setShowAddForm] = useState(false);
   const [adding, setAdding] = useState(false);
   const [newTransaction, setNewTransaction] =
@@ -136,74 +115,10 @@ export default function IncomeTransactionPage() {
     return () => clearTimeout(timer);
   }, [message]);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    const fetchConvertedAmounts = async () => {
-      try {
-        const response = await fetch(
-          `${BASE_URL}/cash-balance-exchanged-to-af`,
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch converted AFN amounts.");
-        }
-
-        const result: unknown = await response.json();
-
-        if (
-          result === null ||
-          typeof result !== "object" ||
-          !("data" in result) ||
-          !Array.isArray(result.data)
-        ) {
-          throw new Error("Invalid exchange API response.");
-        }
-
-        const amounts: Record<string, string> = {};
-
-        for (const item of result.data) {
-          if (item === null || typeof item !== "object") {
-            continue;
-          }
-
-          const exchange = item as ExchangeRecord;
-
-          const incomeId =
-            exchange.received_income_transaction_id ??
-            exchange.received_income_transaction?.income_id;
-
-          if (
-            incomeId !== undefined &&
-            incomeId !== null &&
-            exchange.amount_af !== undefined &&
-            exchange.amount_af !== null
-          ) {
-            amounts[String(incomeId)] = formatAFN(exchange.amount_af);
-          }
-        }
-
-        if (!cancelled) {
-          setConvertedAmounts(amounts);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          console.error("Failed to load converted AFN amounts:", err);
-        }
-      }
-    };
-
-    void fetchConvertedAmounts();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
   const transactionList = transactions ?? [];
 
+  // Keep the ID internally for Edit and Delete, but hide it from the table.
   const preferredColumns = [
-    "income_id",
     "date",
     "amount",
     "currency",
@@ -250,9 +165,7 @@ export default function IncomeTransactionPage() {
         return;
       }
 
-      const payload = {
-        ...(parsed as Record<string, unknown>),
-      };
+      const payload = { ...(parsed as Record<string, unknown>) };
 
       delete payload.id;
       delete payload.income_id;
@@ -332,7 +245,6 @@ export default function IncomeTransactionPage() {
 
       if (!response.ok) {
         const responseText = await response.text();
-
         let errorMessage = responseText;
 
         try {
@@ -343,11 +255,11 @@ export default function IncomeTransactionPage() {
             typeof errorData === "object" &&
             "message" in errorData
           ) {
-            const message = errorData.message;
+            const apiMessage = errorData.message;
 
-            errorMessage = Array.isArray(message)
-              ? message.join(", ")
-              : String(message);
+            errorMessage = Array.isArray(apiMessage)
+              ? apiMessage.join(", ")
+              : String(apiMessage);
           }
         } catch {
           // Keep the original response text.
@@ -466,7 +378,7 @@ export default function IncomeTransactionPage() {
         <p className="text-sm text-red-500">{localError}</p>
       )}
 
-      {/* Transactions table */}
+      {/* Income transactions table */}
       <div className="w-full overflow-hidden rounded-xl border border-gray-200 shadow-sm">
         <table className="w-full table-fixed border-collapse">
           <thead className="bg-gray-50">
@@ -476,13 +388,9 @@ export default function IncomeTransactionPage() {
                   key={column}
                   className="break-words p-3 text-left text-sm font-semibold text-gray-700"
                 >
-                  {column.replace(/_/g, " ")}
+                  {formatColumnTitle(column)}
                 </th>
               ))}
-
-              <th className="p-3 text-left text-sm font-semibold text-gray-700">
-                Converted AFN
-              </th>
 
               <th className="w-56 p-2 text-left text-sm font-semibold text-gray-700">
                 Actions
@@ -494,11 +402,10 @@ export default function IncomeTransactionPage() {
             {transactionList.length > 0 ? (
               transactionList.map((transaction, index) => {
                 const id = getTransactionId(transaction);
-                const incomeId = getIncomeId(transaction);
 
                 return (
                   <tr
-                    key={incomeId ?? id ?? index}
+                    key={id ?? index}
                     className="border-b border-gray-100 transition hover:bg-blue-50"
                   >
                     {columns.map((column) => (
@@ -511,15 +418,11 @@ export default function IncomeTransactionPage() {
                       </td>
                     ))}
 
-                    <td className="overflow-hidden text-ellipsis whitespace-nowrap p-3 text-sm">
-                      {incomeId ? (convertedAmounts[incomeId] ?? "-") : "-"}
-                    </td>
-
                     <td className="p-2">
                       <div className="flex flex-nowrap items-center gap-1">
                         <button
                           onClick={() => setSelectedTransaction(transaction)}
-                          className="whitespace-nowrap rounded-md bg-blue-500 px-2 py-1 text-xs text-white hover:bg-blue-600"
+                          className="whitespace-nowrap rounded-md bg-blue-firstRate px-2 py-1 text-xs text-white hover:bg-blue-600"
                         >
                           Show More
                         </button>
@@ -546,7 +449,7 @@ export default function IncomeTransactionPage() {
             ) : (
               <tr>
                 <td
-                  colSpan={columns.length + 2}
+                  colSpan={columns.length + 1}
                   className="p-6 text-center text-gray-500"
                 >
                   No income transactions found.
@@ -755,34 +658,65 @@ export default function IncomeTransactionPage() {
 
       {/* Show More modal */}
       {selectedTransaction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <h2 className="text-lg font-bold">Transaction Details</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
+          <div className="max-h-[85vh] w-full max-w-2xl overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-6 py-5">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Transaction Details
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  View income transaction information
+                </p>
+              </div>
 
               <button
                 onClick={() => setSelectedTransaction(null)}
-                className="rounded-lg px-3 py-1 text-gray-500 hover:bg-gray-100"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white text-xl font-semibold text-gray-500 transition hover:bg-gray-100 hover:text-gray-900"
+                aria-label="Close"
               >
-                Close
+                ×
               </button>
             </div>
 
-            <div className="space-y-3">
-              {Object.entries(selectedTransaction).map(([key, value]) => (
-                <div
-                  key={key}
-                  className="grid grid-cols-1 gap-1 border-b border-gray-100 pb-3 sm:grid-cols-3"
-                >
-                  <p className="text-sm font-semibold capitalize text-gray-600">
-                    {key.replace(/_/g, " ")}
-                  </p>
+            <div className="max-h-[calc(85vh-90px)] overflow-y-auto p-6">
+              <div className="space-y-3">
+                {Object.entries(selectedTransaction)
+                  .filter(
+                    ([key]) =>
+                      ![
+                        "income_id",
+                        "id",
+                        "transaction_id",
+                        "_id",
+                        "created_at",
+                        "updated_at",
+                      ].includes(key),
+                  )
+                  .map(([key, value]) => (
+                    <div
+                      key={key}
+                      className="grid grid-cols-1 gap-2 rounded-xl border border-gray-100 bg-gray-50/70 px-4 py-4 transition hover:border-blue-100 hover:bg-blue-50/50 sm:grid-cols-3 sm:items-start sm:gap-4"
+                    >
+                      <p className="text-sm font-bold text-gray-800">
+                        {formatColumnTitle(key)}
+                      </p>
 
-                  <p className="break-words text-sm sm:col-span-2">
-                    {formatValue(value)}
-                  </p>
-                </div>
-              ))}
+                      <p className="break-words text-sm font-medium leading-6 text-gray-600 sm:col-span-2">
+                        {formatValue(value)}
+                      </p>
+                    </div>
+                  ))}
+              </div>
+
+              <div className="mt-6 flex justify-end border-t border-gray-100 pt-4">
+                <button
+                  onClick={() => setSelectedTransaction(null)}
+                  className="rounded-lg bg-blue-firstRate px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
