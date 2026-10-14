@@ -53,6 +53,4 @@ export const createContract = () =>
   useCreate<EmployeeContract>(`${BASE_URL}/employee-contract`);
 
 export const updateContract = () =>
-  useUpdate<EmployeeContract>(`${BASE_URL}/employee-contract`);
-export const getActiveContracts = () =>
-  useFetch<EmployeeContract[]>(`${BASE_URL}/employee-contract/active`);
+    useUpdate<EmployeeContract>(`${BASE_URL}/employee-contract`);

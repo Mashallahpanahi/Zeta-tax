@@ -257,7 +257,7 @@ export default function UpdateEmployeeContractModal({
                                 className="w-full rounded-lg border border-gray-300 p-3 text-sm outline-none focus:border-blue-firstRate"
                             >
                                 <option value="Permanent">Permanent</option>
-                                <option value="External">External</option>
+                                <option value="Intern">Intern</option>
                             </select>
                         </div>
 
