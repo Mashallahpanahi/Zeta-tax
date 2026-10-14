@@ -6,15 +6,14 @@
  * afghaniToDollar (amount , exh_rate)
  */
 
-export function afghaniToDollar(amount: number, exchangeRate: number): number {
-    if (!Number.isFinite(amount) || amount < 0) {
-        throw new Error("Amount must be a non-negative number.");
-    }
+export function afghaniToDollar(amount: number, exchangeRate: number): string {
+  if (!Number.isFinite(amount) || amount < 0) {
+    throw new Error("Amount must be a non-negative number.");
+  }
 
-    if (!Number.isFinite(exchangeRate) || exchangeRate <= 0) {
-        throw new Error("Exchange rate must be a positive number.");
-    }
+  if (!Number.isFinite(exchangeRate) || exchangeRate <= 0) {
+    throw new Error("Exchange rate must be a positive number.");
+  }
 
-    return Number((amount / exchangeRate).toFixed(2));
+  return String((amount / exchangeRate).toFixed(2) + "$");
 }
-
