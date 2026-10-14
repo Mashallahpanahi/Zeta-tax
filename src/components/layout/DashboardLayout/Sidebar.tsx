@@ -3,6 +3,8 @@ import { NavLink, useLocation } from "react-router-dom";
 import { TbDatabaseHeart } from "react-icons/tb";
 import { IoManSharp } from "react-icons/io5";
 import { LiaFileContractSolid } from "react-icons/lia";
+import { GrTransaction } from "react-icons/gr";
+
 import {
   FaHome,
   FaMoneyBillWave,
@@ -52,9 +54,11 @@ const Sidebar = () => {
       icon: <FaMoneyBillWave />,
       menuId: "income",
       subItems: [
-        { path: "/income", label: "A", icon: <FaFileInvoiceDollar /> },
-        { path: "/income/b", label: "B", icon: <FaFileInvoiceDollar /> },
-        { path: "/income/c", label: "C", icon: <FaFileInvoiceDollar /> },
+        {
+          path: "/Income-transaction",
+          label: "IncomeTransaction",
+          icon: <GrTransaction />,
+        },
       ],
     },
     {

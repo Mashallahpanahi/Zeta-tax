@@ -6,6 +6,7 @@ import HomePage from "../pages/Dashboard/Home-page";
 import ExpensesPage from "../pages/Expenses/Expenses";
 import EmployeesPage from "../pages/Employees/Register";
 import ContractPage from "../pages/Employees/contract";
+import IncomeTransactionPage from "../pages/Income/Income-transaction";
 
 const AppRoutes = () => (
   <BrowserRouter>
@@ -17,6 +18,7 @@ const AppRoutes = () => (
         <Route path="expenses" element={<ExpensesPage />} />
         <Route path="employees" element={<EmployeesPage />} />
         <Route path="contracts" element={<ContractPage />} />
+        <Route path="Income-transaction" element={<IncomeTransactionPage />} />
       </Route>
     </Routes>
   </BrowserRouter>
