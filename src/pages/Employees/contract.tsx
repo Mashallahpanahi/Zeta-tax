@@ -28,7 +28,7 @@ export default function ContractPage() {
     refetch: refetchEmployees,
   } = getAllRegisteredEmployees();
 
-  const { update, loading: savingStatus, } = updateContract();
+  const { update, loading: savingStatus } = updateContract();
 
   const contracts = contractData ?? [];
   const employees = employeeData ?? [];
@@ -36,8 +36,12 @@ export default function ContractPage() {
   const [message, setMessage] = useState("");
   const [actionError, setActionError] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [editContract, setEditContract] = useState<EmployeeContract | null>(null);
-  const [viewContract, setViewContract] = useState<EmployeeContract | null>(null);
+  const [editContract, setEditContract] = useState<EmployeeContract | null>(
+    null,
+  );
+  const [viewContract, setViewContract] = useState<EmployeeContract | null>(
+    null,
+  );
   const loading = loadingContracts || loadingEmployees;
   const error = actionError || contractError || employeeError || "";
 
@@ -56,9 +60,7 @@ export default function ContractPage() {
     return () => window.clearTimeout(timer);
   }, [message]);
 
-  async function handleDeactivate(
-    contract: EmployeeContract,
-  ) {
+  async function handleDeactivate(contract: EmployeeContract) {
     const id = contract.id ?? contract.contract_id;
 
     if (id === undefined || id === null) {
@@ -91,9 +93,7 @@ export default function ContractPage() {
   function getEmployee(contract: EmployeeContract) {
     return employees.find((employee) => {
       const employeeId =
-        employee.registration_id ??
-        employee.employee_id ??
-        employee.id;
+        employee.registration_id ?? employee.employee_id ?? employee.id;
 
       return (
         employeeId !== undefined &&
@@ -145,9 +145,7 @@ export default function ContractPage() {
   return (
     <div className="space-y-6 p-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-xl font-bold">
-          Employee Contracts
-        </h1>
+        <h1 className="text-xl font-bold">Employee Contracts</h1>
 
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -169,7 +167,6 @@ export default function ContractPage() {
             + Create new Contract
           </button>
         </div>
-
       </div>
 
       {message && (
@@ -188,7 +185,12 @@ export default function ContractPage() {
         <table className="w-full min-w-[620px] border-collapse">
           <thead className="bg-gray-50">
             <tr>
-              {["ID", "First Name", "Last Name", "Termination Date", "Actions"
+              {[
+                "ID",
+                "First Name",
+                "Last Name",
+                "Termination Date",
+                "Actions",
               ].map((heading) => (
                 <th
                   key={heading}
@@ -204,17 +206,14 @@ export default function ContractPage() {
             {contracts.map((contract, index) => {
               const id = contract.id ?? contract.contract_id;
               const employee = getEmployee(contract);
-              const isActive =
-                contract.status?.toLowerCase() === "active";
+              const isActive = contract.status?.toLowerCase() === "active";
 
               return (
                 <tr
                   key={id ?? index}
                   className="border-b border-gray-100 transition hover:bg-blue-50"
                 >
-                  <td className="whitespace-nowrap p-3 text-sm">
-                    {id ?? "—"}
-                  </td>
+                  <td className="whitespace-nowrap p-3 text-sm">{id ?? "—"}</td>
 
                   <td className="whitespace-nowrap p-3 text-sm">
                     {employee?.first_name ?? "—"}
@@ -268,10 +267,7 @@ export default function ContractPage() {
 
             {contracts.length === 0 && (
               <tr>
-                <td
-                  colSpan={5}
-                  className="p-6 text-center text-gray-500"
-                >
+                <td colSpan={5} className="p-6 text-center text-gray-500">
                   No contracts found.
                 </td>
               </tr>
@@ -292,11 +288,11 @@ export default function ContractPage() {
         employeeName={
           editContract
             ? [
-              getEmployee(editContract)?.first_name,
-              getEmployee(editContract)?.last_name,
-            ]
-              .filter(Boolean)
-              .join(" ") || "Employee not found"
+                getEmployee(editContract)?.first_name,
+                getEmployee(editContract)?.last_name,
+              ]
+                .filter(Boolean)
+                .join(" ") || "Employee not found"
             : ""
         }
         onClose={() => setEditContract(null)}
@@ -309,11 +305,11 @@ export default function ContractPage() {
         employeeName={
           viewContract
             ? [
-              getEmployee(viewContract)?.first_name,
-              getEmployee(viewContract)?.last_name,
-            ]
-              .filter(Boolean)
-              .join(" ") || "Unknown employee"
+                getEmployee(viewContract)?.first_name,
+                getEmployee(viewContract)?.last_name,
+              ]
+                .filter(Boolean)
+                .join(" ") || "Unknown employee"
             : "Unknown employee"
         }
         onClose={() => setViewContract(null)}
