@@ -99,7 +99,9 @@ export default function IncomeTransactionPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [adding, setAdding] = useState(false);
+
   const [newTransaction, setNewTransaction] =
     useState<NewIncomeForm>(createEmptyForm);
 
@@ -117,23 +119,14 @@ export default function IncomeTransactionPage() {
 
   const transactionList = transactions ?? [];
 
-  // Keep the ID internally for Edit and Delete, but hide it from the table.
-  const preferredColumns = [
-    "date",
-    "amount",
-    "currency",
-    "recorded_by",
-    "received_from",
-    "income_type",
-    "description",
-  ];
+  const preferredColumns = ["date", "amount", "currency", "description"];
 
   const columns =
     transactionList.length > 0
       ? preferredColumns.filter((column) =>
           Object.keys(transactionList[0]).includes(column),
         )
-      : [];
+      : preferredColumns;
 
   const openEdit = (transaction: IncomeTransactionType) => {
     setEditTransaction(transaction);
@@ -335,7 +328,7 @@ export default function IncomeTransactionPage() {
 
         <button
           onClick={() => void refetch()}
-          className="rounded-lg bg-blue-firstRate px-4 py-2 text-white"
+          className="rounded-lg bg-blue-firstRate px-4 py-2 text-white hover:opacity-90"
         >
           Retry
         </button>
@@ -345,7 +338,7 @@ export default function IncomeTransactionPage() {
 
   return (
     <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold">Income Transactions</h1>
 
@@ -354,16 +347,29 @@ export default function IncomeTransactionPage() {
           </p>
         </div>
 
-        <button
-          onClick={() => {
-            setLocalError("");
-            setNewTransaction(createEmptyForm());
-            setShowAddForm(true);
-          }}
-          className="whitespace-nowrap rounded-lg bg-blue-firstRate px-4 py-2 text-sm text-white transition hover:opacity-90"
-        >
-          + Add Transaction
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              setLocalError("");
+              setNewTransaction(createEmptyForm());
+              setShowAddForm(true);
+            }}
+            className="whitespace-nowrap rounded-lg bg-blue-firstRate px-4 py-2 text-sm text-white transition hover:opacity-90"
+          >
+            + Add Transaction
+          </button>
+
+          <button
+            onClick={() => {
+              setLocalError("");
+              setShowHistory(true);
+              void refetch();
+            }}
+            className="whitespace-nowrap rounded-lg bg-blue-firstRate px-4 py-2 text-sm text-white transition hover:opacity-90"
+          >
+            History
+          </button>
+        </div>
       </div>
 
       {visibleMessage && (
@@ -375,12 +381,12 @@ export default function IncomeTransactionPage() {
       )}
 
       {localError && !editTransaction && !showAddForm && (
-        <p className="text-sm text-red-500">{localError}</p>
+        <p className="whitespace-pre-wrap text-sm text-red-500">{localError}</p>
       )}
 
-      {/* Income transactions table */}
-      <div className="w-full overflow-hidden rounded-xl border border-gray-200 shadow-sm">
-        <table className="w-full table-fixed border-collapse">
+      {/* Main transactions table */}
+      <div className="w-full overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+        <table className="w-full min-w-[700px] table-fixed border-collapse">
           <thead className="bg-gray-50">
             <tr>
               {columns.map((column) => (
@@ -422,7 +428,7 @@ export default function IncomeTransactionPage() {
                       <div className="flex flex-nowrap items-center gap-1">
                         <button
                           onClick={() => setSelectedTransaction(transaction)}
-                          className="whitespace-nowrap rounded-md bg-blue-firstRate px-2 py-1 text-xs text-white hover:bg-blue-600"
+                          className="whitespace-nowrap rounded-md bg-blue-firstRate px-2 py-1 text-xs text-white hover:opacity-90"
                         >
                           Show More
                         </button>
@@ -439,7 +445,7 @@ export default function IncomeTransactionPage() {
                           disabled={deletingId === id}
                           className="whitespace-nowrap rounded-md bg-red-500 px-2 py-1 text-xs text-white hover:bg-red-600 disabled:opacity-50"
                         >
-                          Delete
+                          {deletingId === id ? "Deleting..." : "Delete"}
                         </button>
                       </div>
                     </td>
@@ -459,6 +465,92 @@ export default function IncomeTransactionPage() {
           </tbody>
         </table>
       </div>
+
+      {/* History modal */}
+      {showHistory && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="max-h-[90vh] w-full max-w-6xl overflow-hidden rounded-xl bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+              <div>
+                <h2 className="text-lg font-bold">
+                  Income Transaction History
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  Total transactions: {transactionList.length}
+                </p>
+              </div>
+
+              <button
+                onClick={() => setShowHistory(false)}
+                className="rounded-lg bg-blue-firstRate px-4 py-2 text-sm text-white transition hover:opacity-90"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="max-h-[70vh] overflow-auto p-6">
+              {transactionList.length > 0 ? (
+                <table className="w-full min-w-[850px] border-collapse">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      {[
+                        "date",
+                        "amount",
+                        "currency",
+                        "recorded_by",
+                        "received_from",
+                        "income_type",
+                        "description",
+                      ].map((column) => (
+                        <th
+                          key={column}
+                          className="border-b border-gray-200 p-3 text-left text-sm font-semibold text-gray-700"
+                        >
+                          {formatColumnTitle(column)}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {transactionList.map((transaction, index) => (
+                      <tr
+                        key={getTransactionId(transaction) ?? index}
+                        className="border-b border-gray-100 hover:bg-blue-50"
+                      >
+                        {[
+                          "date",
+                          "amount",
+                          "currency",
+                          "recorded_by",
+                          "received_from",
+                          "income_type",
+                          "description",
+                        ].map((column) => (
+                          <td
+                            key={column}
+                            className="max-w-xs break-words p-3 text-sm text-gray-700"
+                          >
+                            {formatValue(
+                              transaction[
+                                column as keyof IncomeTransactionType
+                              ],
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="py-8 text-center text-gray-500">
+                  No income transactions found.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Add Transaction modal */}
       {showAddForm && (
@@ -482,7 +574,6 @@ export default function IncomeTransactionPage() {
                   <label className="mb-1 block text-sm font-medium text-gray-700">
                     Date
                   </label>
-
                   <input
                     type="date"
                     value={newTransaction.date}
@@ -501,7 +592,6 @@ export default function IncomeTransactionPage() {
                   <label className="mb-1 block text-sm font-medium text-gray-700">
                     Amount
                   </label>
-
                   <input
                     type="number"
                     min="0.01"
@@ -523,7 +613,6 @@ export default function IncomeTransactionPage() {
                   <label className="mb-1 block text-sm font-medium text-gray-700">
                     Currency
                   </label>
-
                   <select
                     value={newTransaction.currency}
                     onChange={(event) =>
@@ -544,7 +633,6 @@ export default function IncomeTransactionPage() {
                   <label className="mb-1 block text-sm font-medium text-gray-700">
                     Recorded By
                   </label>
-
                   <input
                     type="text"
                     value={newTransaction.recorded_by}
@@ -564,7 +652,6 @@ export default function IncomeTransactionPage() {
                   <label className="mb-1 block text-sm font-medium text-gray-700">
                     Received From
                   </label>
-
                   <input
                     type="text"
                     value={newTransaction.received_from}
@@ -584,7 +671,6 @@ export default function IncomeTransactionPage() {
                   <label className="mb-1 block text-sm font-medium text-gray-700">
                     Income Type
                   </label>
-
                   <select
                     value={newTransaction.income_type}
                     onChange={(event) =>
@@ -609,7 +695,6 @@ export default function IncomeTransactionPage() {
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Description
                 </label>
-
                 <textarea
                   value={newTransaction.description}
                   onChange={(event) =>
@@ -646,7 +731,7 @@ export default function IncomeTransactionPage() {
                 <button
                   type="submit"
                   disabled={adding}
-                  className="rounded-lg bg-blue-firstRate px-4 py-2 text-white hover:opacity-90 disabled:opacity-50"
+                  className="rounded-lg bg-blue-firstRate px-4 py-2 text-white transition hover:opacity-90 disabled:opacity-50"
                 >
                   {adding ? "Adding..." : "Add Transaction"}
                 </button>
@@ -701,7 +786,6 @@ export default function IncomeTransactionPage() {
                       <p className="text-sm font-bold text-gray-800">
                         {formatColumnTitle(key)}
                       </p>
-
                       <p className="break-words text-sm font-medium leading-6 text-gray-600 sm:col-span-2">
                         {formatValue(value)}
                       </p>
@@ -761,7 +845,7 @@ export default function IncomeTransactionPage() {
               <button
                 onClick={() => void handleUpdate()}
                 disabled={updating}
-                className="rounded-lg bg-blue-firstRate px-4 py-2 text-white hover:opacity-90 disabled:opacity-50"
+                className="rounded-lg bg-blue-firstRate px-4 py-2 text-white transition hover:opacity-90 disabled:opacity-50"
               >
                 {updating ? "Saving..." : "Save Changes"}
               </button>
