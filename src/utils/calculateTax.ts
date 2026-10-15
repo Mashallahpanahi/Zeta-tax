@@ -6,18 +6,15 @@
     10,001af - 100,000af  → 10% tax
     More than 100,001af → 15% tax
 */
-
+import { formatNumber } from "./formatNumber";
 export interface TaxResult {
-    originalAmount: number;
+    originalAmount: string;
     taxRate: number;
-    tax: number;
-    amountAfterTax: number;
+    tax: string;
+    amountAfterTax: string;
 }
 
 export function calculateTax(amount: number): TaxResult {
-    if (!Number.isFinite(amount) || amount < 0) {
-        throw new Error("Salary must be a non-negative number.");
-    }
     let taxRate: number;
     if (amount <= 10000) {
         taxRate = 0;
@@ -31,9 +28,9 @@ export function calculateTax(amount: number): TaxResult {
     const amountAfterTax = Number((amount - tax).toFixed(2));
 
     return {
-        originalAmount: amount,
+        originalAmount: formatNumber(amount),
         taxRate: taxRate * 100,
-        tax,
-        amountAfterTax,
+        tax: formatNumber(tax),
+        amountAfterTax: formatNumber(amountAfterTax),
     };
 }
