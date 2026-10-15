@@ -6,6 +6,8 @@
  * afghaniToDollar (amount , exh_rate)
  */
 
+import { formatNumber } from "./formatNumber";
+
 export function afghaniToDollar(amount: number, exchangeRate: number): string {
   if (!Number.isFinite(amount) || amount < 0) {
     throw new Error("Amount must be a non-negative number.");
@@ -15,5 +17,5 @@ export function afghaniToDollar(amount: number, exchangeRate: number): string {
     throw new Error("Exchange rate must be a positive number.");
   }
 
-  return String((amount / exchangeRate).toFixed(2) + "$");
+  return String(formatNumber(Number((amount / exchangeRate).toFixed(2))) + "$");
 }

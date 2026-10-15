@@ -5,7 +5,7 @@ import { dollarToAfghani } from "../../utils/dollarToAfghani";
 import { calculateTax } from "../../utils/calculateTax";
 
 const HomePage = () => {
-  const af_to_dollar = afghaniToDollar(6000, 60);
+  const af_to_dollar = afghaniToDollar(64000, 60);
   const dollar_to_af = dollarToAfghani(100, 60);
   const tax = calculateTax(100000);
 

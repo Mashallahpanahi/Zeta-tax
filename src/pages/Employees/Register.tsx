@@ -92,9 +92,9 @@ export default function RegisteredNewEmployeePage() {
           <div className="flex flex-wrap items-baseline gap-3">
             <h1 className="text-xl font-bold text-black">Active Employees</h1>
 
-            {visibleMessage && (
+            {/* {visibleMessage && (
               <p className="text-sm text-green-600">{visibleMessage}</p>
-            )}
+            )} */}
           </div>
 
           <p className="mt-1 text-sm text-gray-500">

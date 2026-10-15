@@ -97,9 +97,9 @@ export default function EmployeeRegisterHistory() {
               Employee Register History
             </h1>
 
-            {visibleMessage && (
+            {/* {visibleMessage && (
               <p className="text-sm text-green-600">{visibleMessage}</p>
-            )}
+            )} */}
           </div>
 
           <p className="mt-1 text-sm text-gray-500">
