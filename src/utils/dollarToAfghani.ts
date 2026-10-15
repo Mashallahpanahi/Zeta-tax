@@ -4,7 +4,12 @@
  *  amount - Amount in USD.
  * returns Converted amount in AFN, rounded to 2 decimal places.
  */
+import { formatNumber } from "./formatNumber";
+export function dollarToAfghani(amount: number, exchangeRate: number): string {
+    const result = Number((amount * exchangeRate).toFixed(2));
+    return `${formatNumber(result)} $`;
 
+<<<<<<< HEAD
 export function dollarToAfghani(amount: number, exchangeRate: number): string {
   if (!Number.isFinite(amount) || amount < 0) {
     throw new Error("Amount must be a non-negative number.");
@@ -15,4 +20,6 @@ export function dollarToAfghani(amount: number, exchangeRate: number): string {
   }
 
   return String((amount * exchangeRate).toFixed(2) + " AFN");
+=======
+>>>>>>> origin/Hamida3-utils-function
 }
