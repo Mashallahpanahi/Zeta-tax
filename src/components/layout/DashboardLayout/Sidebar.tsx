@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+
+import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { TbDatabaseHeart } from "react-icons/tb";
 import { IoManSharp } from "react-icons/io5";
 import { LiaFileContractSolid } from "react-icons/lia";
+import { MdAddBusiness } from "react-icons/md";
 import {
   FaHome,
   FaMoneyBillWave,
@@ -19,17 +21,35 @@ const Sidebar = () => {
   const location = useLocation();
 
   const toggleMenu = (menuId: string) => {
-    setExpandedMenu(expandedMenu === menuId ? null : menuId);
+    setExpandedMenu((current) =>
+      current === menuId ? null : menuId,
+    );
   };
 
   useEffect(() => {
-    if (location.pathname.startsWith("/income")) setExpandedMenu("income");
-    else if (location.pathname.startsWith("/expenses"))
+    if (location.pathname.startsWith("/income")) {
+      setExpandedMenu("income");
+    } else if (
+      location.pathname.startsWith("/expenses") ||
+      location.pathname.startsWith("/expense-categories")
+    ) {
       setExpandedMenu("expenses");
+    } else if (
+      location.pathname.startsWith("/employees") ||
+      location.pathname.startsWith("/contracts") ||
+      location.pathname.startsWith("/employee-register-history") ||
+      location.pathname.startsWith("/contract-history")
+    ) {
+      setExpandedMenu("employees");
+    }
   }, [location.pathname]);
 
   const navItems = [
-    { path: "/", label: "Dashboard", icon: <FaHome /> },
+    {
+      path: "/",
+      label: "Dashboard",
+      icon: <FaHome />,
+    },
     {
       label: "Employees",
       icon: <FaPeopleGroup />,
@@ -52,9 +72,12 @@ const Sidebar = () => {
       icon: <FaMoneyBillWave />,
       menuId: "income",
       subItems: [
-        { path: "/income", label: "A", icon: <FaFileInvoiceDollar /> },
-        { path: "/income/b", label: "B", icon: <FaFileInvoiceDollar /> },
-        { path: "/income/c", label: "C", icon: <FaFileInvoiceDollar /> },
+        {
+          path: "/income",
+          label: "A",
+          icon: <FaFileInvoiceDollar />,
+        },
+
       ],
     },
     {
@@ -62,69 +85,75 @@ const Sidebar = () => {
       icon: <GiExpense />,
       menuId: "expenses",
       subItems: [
-        { path: "/expenses", label: "A", icon: <FaReceipt /> },
-        { path: "/expenses/b", label: "B", icon: <FaReceipt /> },
-        { path: "/expenses/c", label: "C", icon: <FaReceipt /> },
+        {
+          path: "/expense-categories",
+          label: "Add Category",
+          icon: <MdAddBusiness />,
+        },
       ],
     },
   ];
 
-  const isSubItemActive = (subItems: any[]) => {
-    return subItems.some((sub) => location.pathname.startsWith(sub.path));
-  };
+  const isSubItemActive = (subItems: { path: string }[]) =>
+    subItems.some(
+      (sub) =>
+        location.pathname === sub.path ||
+        location.pathname.startsWith(`${sub.path}/`),
+    );
 
   return (
-    // Floating Sidebar Container with your custom color
-    <aside className="w-64 bg-blue-firstRate text-white rounded-3xl flex flex-col shadow-lg transition-all duration-300">
-      {/* Logo Area */}
-      <div className="h-24 flex items-center justify-center">
-        <span className="text-2xl flex-shrink-0">
+    <aside className="flex w-64 flex-col rounded-3xl bg-blue-firstRate text-white shadow-lg transition-all duration-300">
+      {/* Logo */}
+      <div className="flex h-24 items-center justify-center">
+        <span className="flex-shrink-0 text-2xl">
           <TbDatabaseHeart />
         </span>
-        <span className="text-xl font-bold tracking-wider ms-2">ZETA TAX</span>
+        <span className="ms-2 text-xl font-bold tracking-wider">
+          ZETA TAX
+        </span>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 mt-4">
+      <nav className="mt-4 flex-1 px-4">
         <ul className="space-y-2">
           {navItems.map((item) => {
-            if (!item.subItems) {
+            if (!("subItems" in item)) {
               return (
                 <li key={item.path}>
                   <NavLink
-                    to={item.path!}
+                    to={item.path}
                     end={item.path === "/"}
                     className={({ isActive }) =>
-                      `flex items-center px-4 py-3 rounded-2xl transition-all duration-200 ${
-                        isActive
-                          ? "bg-white text-blue-firstRate font-semibold shadow-md"
-                          : "text-indigo-100 hover:bg-white/10"
+                      `flex items-center rounded-2xl px-4 py-3 transition-all duration-200 ${isActive
+                        ? "bg-white font-semibold text-blue-firstRate shadow-md"
+                        : "text-indigo-100 hover:bg-white/10"
                       }`
                     }
                   >
-                    <span className="text-lg w-8">{item.icon}</span>
-                    <span className="text-sm ml-2">{item.label}</span>
+                    <span className="w-8 text-lg">{item.icon}</span>
+                    <span className="ml-2 text-sm">{item.label}</span>
                   </NavLink>
                 </li>
               );
             }
 
-            const isActive = isSubItemActive(item.subItems);
             const isExpanded = expandedMenu === item.menuId;
-            const isParentActive = isActive || isExpanded;
+            const isParentActive =
+              isSubItemActive(item.subItems ?? []) || isExpanded;
 
             return (
               <li key={item.menuId}>
                 <button
-                  onClick={() => toggleMenu(item.menuId!)}
-                  className={`w-full flex items-center px-4 py-3 rounded-2xl transition-all duration-200 ${
-                    isParentActive
-                      ? "bg-white/20 text-white font-semibold"
-                      : "text-indigo-100 hover:bg-white/10"
-                  }`}
+                  type="button"
+                  onClick={() => toggleMenu(item.menuId ?? "")}
+                  aria-expanded={isExpanded}
+                  className={`flex w-full items-center rounded-2xl px-4 py-3 transition-all duration-200 ${isParentActive
+                    ? "bg-white/20 font-semibold text-white"
+                    : "text-indigo-100 hover:bg-white/10"
+                    }`}
                 >
-                  <span className="text-lg w-8">{item.icon}</span>
-                  <span className="text-sm flex-1 text-left ml-2">
+                  <span className="w-8 text-lg">{item.icon}</span>
+                  <span className="ml-2 flex-1 text-left text-sm">
                     {item.label}
                   </span>
                   <span className="text-xs">
@@ -132,23 +161,24 @@ const Sidebar = () => {
                   </span>
                 </button>
 
-                {/* Sub Items */}
+                {/* Submenu */}
                 {isExpanded && (
-                  <ul className="mt-1 ml-6 space-y-1">
+                  <ul className="ml-6 mt-1 space-y-1">
                     {item.subItems.map((sub) => (
                       <li key={sub.path}>
                         <NavLink
                           to={sub.path}
                           className={({ isActive }) =>
-                            `flex items-center px-4 py-2 rounded-xl transition-all duration-200 ${
-                              isActive
-                                ? "bg-white text-blue-firstRate font-semibold shadow-sm"
-                                : "text-indigo-200 hover:bg-white/10"
+                            `flex items-center rounded-xl px-4 py-2 transition-all duration-200 ${isActive
+                              ? "bg-white font-semibold text-blue-firstRate shadow-sm"
+                              : "text-indigo-200 hover:bg-white/10"
                             }`
                           }
                         >
-                          <span className="text-sm w-6">{sub.icon}</span>
-                          <span className="text-sm ml-2">{sub.label}</span>
+                          <span className="w-6 text-sm">{sub.icon}</span>
+                          <span className="ml-2 text-sm">
+                            {sub.label}
+                          </span>
                         </NavLink>
                       </li>
                     ))}
