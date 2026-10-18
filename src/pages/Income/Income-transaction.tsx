@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import {
   getAllIncomeTransactions,
   updateIncomeTransaction,
-  deleteIncomeTransaction,
   type IncomeTransactionType,
 } from "../../api/incomeTransactionApi";
+import TransactionHistory from "./TransactionHistory";
 
 const BASE_URL = "http://localhost:3001";
 
@@ -93,11 +93,15 @@ export default function IncomeTransactionPage() {
   const [editTransaction, setEditTransaction] =
     useState<IncomeTransactionType | null>(null);
 
-  const [editJson, setEditJson] = useState("");
+  const [editForm, setEditForm] = useState({
+    date: "",
+    amount: "",
+    currency: "USD",
+    description: "",
+  });
+
   const [visibleMessage, setVisibleMessage] = useState<string | null>(null);
   const [localError, setLocalError] = useState("");
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-
   const [showAddForm, setShowAddForm] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [adding, setAdding] = useState(false);
@@ -121,16 +125,18 @@ export default function IncomeTransactionPage() {
 
   const preferredColumns = ["date", "amount", "currency", "description"];
 
-  const columns =
-    transactionList.length > 0
-      ? preferredColumns.filter((column) =>
-          Object.keys(transactionList[0]).includes(column),
-        )
-      : preferredColumns;
+  const columns = preferredColumns;
 
   const openEdit = (transaction: IncomeTransactionType) => {
     setEditTransaction(transaction);
-    setEditJson(JSON.stringify(transaction, null, 2));
+
+    setEditForm({
+      date: String(transaction.date ?? "").slice(0, 10),
+      amount: String(transaction.amount ?? ""),
+      currency: String(transaction.currency ?? "USD"),
+      description: String(transaction.description ?? ""),
+    });
+
     setLocalError("");
   };
 
@@ -144,21 +150,30 @@ export default function IncomeTransactionPage() {
       return;
     }
 
+    if (!editForm.date) {
+      setLocalError("Please select a date.");
+      return;
+    }
+
+    if (
+      editForm.amount.trim() === "" ||
+      !Number.isFinite(Number(editForm.amount)) ||
+      Number(editForm.amount) <= 0
+    ) {
+      setLocalError("Please enter an amount greater than zero.");
+      return;
+    }
+
     try {
       setLocalError("");
 
-      const parsed: unknown = JSON.parse(editJson);
-
-      if (
-        parsed === null ||
-        typeof parsed !== "object" ||
-        Array.isArray(parsed)
-      ) {
-        setLocalError("Please enter a valid JSON object.");
-        return;
-      }
-
-      const payload = { ...(parsed as Record<string, unknown>) };
+      const payload: Record<string, unknown> = {
+        ...editTransaction,
+        date: editForm.date,
+        amount: Number(editForm.amount),
+        currency: editForm.currency,
+        description: editForm.description.trim(),
+      };
 
       delete payload.id;
       delete payload.income_id;
@@ -277,45 +292,10 @@ export default function IncomeTransactionPage() {
     }
   };
 
-  const handleDelete = async (transaction: IncomeTransactionType) => {
-    const id = getTransactionId(transaction);
-
-    if (!id || !/^\d+$/.test(id) || Number(id) <= 0) {
-      setLocalError("A valid numeric transaction ID was not found.");
-      return;
-    }
-
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this income transaction?",
-    );
-
-    if (!confirmed) return;
-
-    try {
-      setLocalError("");
-      setDeletingId(id);
-
-      await deleteIncomeTransaction(Number(id));
-
-      setVisibleMessage("Transaction deleted successfully.");
-
-      if (selectedTransaction && getTransactionId(selectedTransaction) === id) {
-        setSelectedTransaction(null);
-      }
-
-      if (editTransaction && getTransactionId(editTransaction) === id) {
-        setEditTransaction(null);
-      }
-
-      await refetch();
-    } catch (err) {
-      setLocalError(
-        err instanceof Error ? err.message : "Failed to delete transaction.",
-      );
-    } finally {
-      setDeletingId(null);
-    }
-  };
+  // Show the separate TransactionHistory component.
+  if (showHistory) {
+    return <TransactionHistory onBack={() => setShowHistory(false)} />;
+  }
 
   if (loading) {
     return <p className="p-6">Loading income transactions...</p>;
@@ -327,8 +307,9 @@ export default function IncomeTransactionPage() {
         <p className="text-red-500">Error: {error}</p>
 
         <button
+          type="button"
           onClick={() => void refetch()}
-          className="rounded-lg bg-blue-firstRate px-4 py-2 text-white hover:opacity-90"
+          className="rounded-lg bg-blue-firstRate px-4 py-2 text-white"
         >
           Retry
         </button>
@@ -338,6 +319,7 @@ export default function IncomeTransactionPage() {
 
   return (
     <div className="space-y-6 p-6">
+      {/* Page header and action buttons */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold">Income Transactions</h1>
@@ -347,8 +329,17 @@ export default function IncomeTransactionPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <button
+            type="button"
+            onClick={() => setShowHistory(true)}
+            className="whitespace-nowrap rounded-lg bg-blue-firstRate px-4 py-2 text-sm text-white transition hover:opacity-90"
+          >
+            History
+          </button>
+
+          <button
+            type="button"
             onClick={() => {
               setLocalError("");
               setNewTransaction(createEmptyForm());
@@ -357,17 +348,6 @@ export default function IncomeTransactionPage() {
             className="whitespace-nowrap rounded-lg bg-blue-firstRate px-4 py-2 text-sm text-white transition hover:opacity-90"
           >
             + Add Transaction
-          </button>
-
-          <button
-            onClick={() => {
-              setLocalError("");
-              setShowHistory(true);
-              void refetch();
-            }}
-            className="whitespace-nowrap rounded-lg bg-blue-firstRate px-4 py-2 text-sm text-white transition hover:opacity-90"
-          >
-            History
           </button>
         </div>
       </div>
@@ -381,12 +361,12 @@ export default function IncomeTransactionPage() {
       )}
 
       {localError && !editTransaction && !showAddForm && (
-        <p className="whitespace-pre-wrap text-sm text-red-500">{localError}</p>
+        <p className="text-sm text-red-500">{localError}</p>
       )}
 
-      {/* Main transactions table */}
+      {/* Income transactions table */}
       <div className="w-full overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
-        <table className="w-full min-w-[700px] table-fixed border-collapse">
+        <table className="w-full min-w-[600px] table-fixed border-collapse">
           <thead className="bg-gray-50">
             <tr>
               {columns.map((column) => (
@@ -398,7 +378,7 @@ export default function IncomeTransactionPage() {
                 </th>
               ))}
 
-              <th className="w-56 p-2 text-left text-sm font-semibold text-gray-700">
+              <th className="w-44 p-2 text-left text-sm font-semibold text-gray-700">
                 Actions
               </th>
             </tr>
@@ -412,7 +392,7 @@ export default function IncomeTransactionPage() {
                 return (
                   <tr
                     key={id ?? index}
-                    className="border-b border-gray-100 transition hover:bg-blue-50"
+                    className="border-b border-gray-100 transition-colors hover:bg-blue-50"
                   >
                     {columns.map((column) => (
                       <td
@@ -427,25 +407,19 @@ export default function IncomeTransactionPage() {
                     <td className="p-2">
                       <div className="flex flex-nowrap items-center gap-1">
                         <button
+                          type="button"
                           onClick={() => setSelectedTransaction(transaction)}
-                          className="whitespace-nowrap rounded-md bg-blue-firstRate px-2 py-1 text-xs text-white hover:opacity-90"
+                          className="whitespace-nowrap rounded-md bg-blue-firstRate px-2 py-1 text-xs text-white transition-colors hover:!bg-blue-500"
                         >
                           Show More
                         </button>
 
                         <button
+                          type="button"
                           onClick={() => openEdit(transaction)}
-                          className="whitespace-nowrap rounded-md bg-yellow-500 px-2 py-1 text-xs text-white hover:bg-yellow-600"
+                          className="whitespace-nowrap rounded-md bg-yellow-500 px-2 py-1 text-xs text-white transition-colors hover:bg-yellow-600"
                         >
                           Edit
-                        </button>
-
-                        <button
-                          onClick={() => void handleDelete(transaction)}
-                          disabled={deletingId === id}
-                          className="whitespace-nowrap rounded-md bg-red-500 px-2 py-1 text-xs text-white hover:bg-red-600 disabled:opacity-50"
-                        >
-                          {deletingId === id ? "Deleting..." : "Delete"}
                         </button>
                       </div>
                     </td>
@@ -465,92 +439,6 @@ export default function IncomeTransactionPage() {
           </tbody>
         </table>
       </div>
-
-      {/* History modal */}
-      {showHistory && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="max-h-[90vh] w-full max-w-6xl overflow-hidden rounded-xl bg-white shadow-xl">
-            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-              <div>
-                <h2 className="text-lg font-bold">
-                  Income Transaction History
-                </h2>
-                <p className="mt-1 text-sm text-gray-500">
-                  Total transactions: {transactionList.length}
-                </p>
-              </div>
-
-              <button
-                onClick={() => setShowHistory(false)}
-                className="rounded-lg bg-blue-firstRate px-4 py-2 text-sm text-white transition hover:opacity-90"
-              >
-                Close
-              </button>
-            </div>
-
-            <div className="max-h-[70vh] overflow-auto p-6">
-              {transactionList.length > 0 ? (
-                <table className="w-full min-w-[850px] border-collapse">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      {[
-                        "date",
-                        "amount",
-                        "currency",
-                        "recorded_by",
-                        "received_from",
-                        "income_type",
-                        "description",
-                      ].map((column) => (
-                        <th
-                          key={column}
-                          className="border-b border-gray-200 p-3 text-left text-sm font-semibold text-gray-700"
-                        >
-                          {formatColumnTitle(column)}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {transactionList.map((transaction, index) => (
-                      <tr
-                        key={getTransactionId(transaction) ?? index}
-                        className="border-b border-gray-100 hover:bg-blue-50"
-                      >
-                        {[
-                          "date",
-                          "amount",
-                          "currency",
-                          "recorded_by",
-                          "received_from",
-                          "income_type",
-                          "description",
-                        ].map((column) => (
-                          <td
-                            key={column}
-                            className="max-w-xs break-words p-3 text-sm text-gray-700"
-                          >
-                            {formatValue(
-                              transaction[
-                                column as keyof IncomeTransactionType
-                              ],
-                            )}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="py-8 text-center text-gray-500">
-                  No income transactions found.
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Add Transaction modal */}
       {showAddForm && (
@@ -574,6 +462,7 @@ export default function IncomeTransactionPage() {
                   <label className="mb-1 block text-sm font-medium text-gray-700">
                     Date
                   </label>
+
                   <input
                     type="date"
                     value={newTransaction.date}
@@ -592,6 +481,7 @@ export default function IncomeTransactionPage() {
                   <label className="mb-1 block text-sm font-medium text-gray-700">
                     Amount
                   </label>
+
                   <input
                     type="number"
                     min="0.01"
@@ -613,6 +503,7 @@ export default function IncomeTransactionPage() {
                   <label className="mb-1 block text-sm font-medium text-gray-700">
                     Currency
                   </label>
+
                   <select
                     value={newTransaction.currency}
                     onChange={(event) =>
@@ -633,6 +524,7 @@ export default function IncomeTransactionPage() {
                   <label className="mb-1 block text-sm font-medium text-gray-700">
                     Recorded By
                   </label>
+
                   <input
                     type="text"
                     value={newTransaction.recorded_by}
@@ -652,6 +544,7 @@ export default function IncomeTransactionPage() {
                   <label className="mb-1 block text-sm font-medium text-gray-700">
                     Received From
                   </label>
+
                   <input
                     type="text"
                     value={newTransaction.received_from}
@@ -671,6 +564,7 @@ export default function IncomeTransactionPage() {
                   <label className="mb-1 block text-sm font-medium text-gray-700">
                     Income Type
                   </label>
+
                   <select
                     value={newTransaction.income_type}
                     onChange={(event) =>
@@ -695,6 +589,7 @@ export default function IncomeTransactionPage() {
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Description
                 </label>
+
                 <textarea
                   value={newTransaction.description}
                   onChange={(event) =>
@@ -731,7 +626,7 @@ export default function IncomeTransactionPage() {
                 <button
                   type="submit"
                   disabled={adding}
-                  className="rounded-lg bg-blue-firstRate px-4 py-2 text-white transition hover:opacity-90 disabled:opacity-50"
+                  className="rounded-lg bg-blue-firstRate px-4 py-2 text-white hover:opacity-90 disabled:opacity-50"
                 >
                   {adding ? "Adding..." : "Add Transaction"}
                 </button>
@@ -743,8 +638,14 @@ export default function IncomeTransactionPage() {
 
       {/* Show More modal */}
       {selectedTransaction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
-          <div className="max-h-[85vh] w-full max-w-2xl overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-2xl">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm"
+          onClick={() => setSelectedTransaction(null)}
+        >
+          <div
+            className="max-h-[85vh] w-full max-w-2xl overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-6 py-5">
               <div>
                 <h2 className="text-xl font-bold text-gray-900">
@@ -756,9 +657,10 @@ export default function IncomeTransactionPage() {
               </div>
 
               <button
+                type="button"
                 onClick={() => setSelectedTransaction(null)}
+                aria-label="Close transaction details"
                 className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white text-xl font-semibold text-gray-500 transition hover:bg-gray-100 hover:text-gray-900"
-                aria-label="Close"
               >
                 ×
               </button>
@@ -786,6 +688,7 @@ export default function IncomeTransactionPage() {
                       <p className="text-sm font-bold text-gray-800">
                         {formatColumnTitle(key)}
                       </p>
+
                       <p className="break-words text-sm font-medium leading-6 text-gray-600 sm:col-span-2">
                         {formatValue(value)}
                       </p>
@@ -795,6 +698,7 @@ export default function IncomeTransactionPage() {
 
               <div className="mt-6 flex justify-end border-t border-gray-100 pt-4">
                 <button
+                  type="button"
                   onClick={() => setSelectedTransaction(null)}
                   className="rounded-lg bg-blue-firstRate px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
                 >
@@ -806,23 +710,97 @@ export default function IncomeTransactionPage() {
         </div>
       )}
 
-      {/* Edit modal */}
+      {/* Edit Transaction modal */}
       {editTransaction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
             <h2 className="mb-2 text-lg font-bold">Edit Income Transaction</h2>
 
-            <p className="mb-4 text-sm text-gray-500">
-              Edit the transaction fields in JSON format.
+            <p className="mb-5 text-sm text-gray-500">
+              Update the transaction details using the fields below.
             </p>
 
-            <textarea
-              value={editJson}
-              onChange={(event) => setEditJson(event.target.value)}
-              rows={12}
-              spellCheck={false}
-              className="w-full rounded-lg border border-gray-300 p-3 font-mono text-sm outline-none focus:border-blue-500"
-            />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  Date
+                </label>
+
+                <input
+                  type="date"
+                  value={editForm.date}
+                  onChange={(event) =>
+                    setEditForm((current) => ({
+                      ...current,
+                      date: event.target.value,
+                    }))
+                  }
+                  required
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  Amount
+                </label>
+
+                <input
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  value={editForm.amount}
+                  onChange={(event) =>
+                    setEditForm((current) => ({
+                      ...current,
+                      amount: event.target.value,
+                    }))
+                  }
+                  required
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  Currency
+                </label>
+
+                <select
+                  value={editForm.currency}
+                  onChange={(event) =>
+                    setEditForm((current) => ({
+                      ...current,
+                      currency: event.target.value,
+                    }))
+                  }
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500"
+                >
+                  <option value="USD">USD</option>
+                  <option value="AFN">AFN</option>
+                  <option value="EUR">EUR</option>
+                </select>
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  Description
+                </label>
+
+                <textarea
+                  value={editForm.description}
+                  onChange={(event) =>
+                    setEditForm((current) => ({
+                      ...current,
+                      description: event.target.value,
+                    }))
+                  }
+                  rows={3}
+                  placeholder="Enter transaction description"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                />
+              </div>
+            </div>
 
             {(localError || updateError) && (
               <p className="mt-2 whitespace-pre-wrap text-sm text-red-500">
@@ -832,6 +810,7 @@ export default function IncomeTransactionPage() {
 
             <div className="mt-4 flex justify-end gap-3">
               <button
+                type="button"
                 onClick={() => {
                   setEditTransaction(null);
                   setLocalError("");
@@ -843,9 +822,10 @@ export default function IncomeTransactionPage() {
               </button>
 
               <button
+                type="button"
                 onClick={() => void handleUpdate()}
                 disabled={updating}
-                className="rounded-lg bg-blue-firstRate px-4 py-2 text-white transition hover:opacity-90 disabled:opacity-50"
+                className="rounded-lg bg-blue-firstRate px-4 py-2 text-white hover:opacity-90 disabled:opacity-50"
               >
                 {updating ? "Saving..." : "Save Changes"}
               </button>
