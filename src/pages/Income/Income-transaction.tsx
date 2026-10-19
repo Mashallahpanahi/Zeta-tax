@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { formatNumber } from "../../utils/formatNumber";
 import {
   getAllIncomeTransactions,
   updateIncomeTransaction,
@@ -333,7 +334,7 @@ export default function IncomeTransactionPage() {
           <button
             type="button"
             onClick={() => setShowHistory(true)}
-            className="whitespace-nowrap rounded-lg bg-blue-firstRate px-4 py-2 text-sm text-white transition hover:opacity-90"
+            className="whitespace-nowrap rounded-lg bg-blue-firstRate px-4 py-2 text-sm text-white transition hover:!bg-blue-500"
           >
             History
           </button>
@@ -345,7 +346,7 @@ export default function IncomeTransactionPage() {
               setNewTransaction(createEmptyForm());
               setShowAddForm(true);
             }}
-            className="whitespace-nowrap rounded-lg bg-blue-firstRate px-4 py-2 text-sm text-white transition hover:opacity-90"
+            className="whitespace-nowrap rounded-lg bg-blue-firstRate px-4 py-2 text-sm text-white transition hover:!bg-blue-500"
           >
             + Add Transaction
           </button>
@@ -398,7 +399,9 @@ export default function IncomeTransactionPage() {
                         className="overflow-hidden text-ellipsis whitespace-nowrap p-3 text-sm"
                         title={formatValue(transaction[column])}
                       >
-                        {formatValue(transaction[column])}
+                        {column === "amount"
+                          ? formatNumber(Number(transaction.amount))
+                          : formatValue(transaction[column])}
                       </td>
                     ))}
 
