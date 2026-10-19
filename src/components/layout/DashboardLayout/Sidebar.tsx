@@ -15,6 +15,7 @@ import {
 } from "react-icons/fa";
 import { GiExpense } from "react-icons/gi";
 import { FaPeopleGroup } from "react-icons/fa6";
+import { TbReceipt } from "react-icons/tb";
 
 const Sidebar = () => {
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
@@ -89,6 +90,11 @@ const Sidebar = () => {
           path: "/expense-categories",
           label: "Add Category",
           icon: <MdAddBusiness />,
+        },
+        {
+          path: "/other-expenses",
+          label: "Other Expense",
+          icon: <TbReceipt />,
         },
       ],
     },

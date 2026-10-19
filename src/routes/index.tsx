@@ -8,6 +8,7 @@ import ContractPage from "../pages/Employees/contract";
 import EmployeeRegisterHistory from "../pages/Employees/Employee-register-history";
 import EmployeeContractHistory from "../pages/Employees/EmployeeContractHistory";
 import ExpenseCategoryPage from "../pages/Expenses/ExpenseCategory";
+import OtherExpensesPage from "../pages/Expenses/OtherExpenses";
 const AppRoutes = () => (
   <BrowserRouter>
     <Routes>
@@ -17,15 +18,11 @@ const AppRoutes = () => (
         <Route path="income" element={<IncomePage />} />
         <Route path="employees" element={<EmployeesPage />} />
         <Route path="contracts" element={<ContractPage />} />
-        <Route
-          path="employee-register-history"
-          element={<EmployeeRegisterHistory />} />
-        <Route
-          path="contract-history"
-          element={<EmployeeContractHistory />} />
-        <Route
-          path="expense-categories"
-          element={<ExpenseCategoryPage />} />
+        <Route path="employee-register-history" element={<EmployeeRegisterHistory />} />
+        <Route path="contract-history" element={<EmployeeContractHistory />} />
+        <Route path="expense-categories" element={<ExpenseCategoryPage />} />
+        <Route path="other-expenses" element={<OtherExpensesPage />} />
+
       </Route>
     </Routes>
   </BrowserRouter>
