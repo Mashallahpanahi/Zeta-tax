@@ -363,8 +363,6 @@ export default function IncomeTransactionPage() {
       {localError && !editTransaction && !showAddForm && (
         <p className="text-sm text-red-500">{localError}</p>
       )}
-
-      {/* Income transactions table */}
       <div className="w-full overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
         <table className="w-full min-w-[600px] table-fixed border-collapse">
           <thead className="bg-gray-50">
@@ -440,7 +438,6 @@ export default function IncomeTransactionPage() {
         </table>
       </div>
 
-      {/* Add Transaction modal */}
       {showAddForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
@@ -516,7 +513,6 @@ export default function IncomeTransactionPage() {
                   >
                     <option value="USD">USD</option>
                     <option value="AFN">AFN</option>
-                    <option value="EUR">EUR</option>
                   </select>
                 </div>
 

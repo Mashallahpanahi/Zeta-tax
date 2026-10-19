@@ -7,7 +7,7 @@ import ExpensesPage from "../pages/Expenses/Expenses";
 import EmployeesPage from "../pages/Employees/Register";
 import ContractPage from "../pages/Employees/contract";
 import IncomeTransactionPage from "../pages/Income/Income-transaction";
-
+import TransactionHistory from "../pages/Income/TransactionHistory";
 const AppRoutes = () => (
   <BrowserRouter>
     <Routes>
@@ -19,6 +19,7 @@ const AppRoutes = () => (
         <Route path="employees" element={<EmployeesPage />} />
         <Route path="contracts" element={<ContractPage />} />
         <Route path="Income-transaction" element={<IncomeTransactionPage />} />
+        <Route path="/transaction-history" element={<TransactionHistory />} />
       </Route>
     </Routes>
   </BrowserRouter>
