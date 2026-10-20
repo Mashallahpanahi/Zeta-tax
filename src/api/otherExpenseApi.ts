@@ -26,8 +26,10 @@ export type CreateOtherExpenseType = Omit<
 
 export type UpdateOtherExpenseType = Partial<CreateOtherExpenseType>;
 
-export const getAllOtherExpenses = () =>
-    useFetch<OtherExpense[]>(`${BASE_URL}/other-expenses`);
+
+export const getAllOtherExpenses = (enabled = true) =>
+    useFetch<OtherExpense[]>(`${BASE_URL}/other-expenses`, enabled);
+
 
 export const getOtherExpenseById = (id: number | string) =>
     useFetch<OtherExpense>(`${BASE_URL}/other-expenses/${id}`);

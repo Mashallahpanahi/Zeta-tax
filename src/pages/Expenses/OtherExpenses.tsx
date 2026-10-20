@@ -1,26 +1,44 @@
-
 import { useEffect, useState } from "react";
-import { getAllOtherExpenses, type OtherExpense, } from "../../api/otherExpenseApi";
-import CreateOtherExpenseModal from "../../components/expenses/CreateOtherExpenseModal";
-import UpdateOtherExpenseModal from "../../components/expenses/UpdateOtherExpenseModal";
+import {
+    createOtherExpense, getAllOtherExpenses, type CreateOtherExpenseType, type OtherExpense,
+} from "../../api/otherExpenseApi";
 import { getAllExpenseCategories } from "../../api/expenseCategoryApi";
-import { formatNumber } from "../../utils/formatNumber";
+import UpdateOtherExpenseModal from "../../components/expenses/UpdateOtherExpenseModal";
+import OtherExpenseHistory from "../../components/expenses/OtherExpenseHistory";
+
+const initialForm: CreateOtherExpenseType = {
+    description: "",
+    amount: 0,
+    category_id: 0,
+    currency: "AFN",
+    expense_date: new Date().toISOString().slice(0, 10),
+    note: "",
+};
+
 export default function OtherExpensesPage() {
+    const [showHistory, setShowHistory] = useState(false);
+    const [editExpense, setEditExpense] = useState<OtherExpense | null>(null);
+    const [form, setForm] = useState<CreateOtherExpenseType>(initialForm);
+    const [formError, setFormError] = useState("");
+    const [message, setMessage] = useState("");
+
     const {
-        data: expenseData,
+        data: expensesData,
         loading,
         error,
         refetch,
-    } = getAllOtherExpenses();
+    } = getAllOtherExpenses(showHistory);
 
-    const { data: categoryData } = getAllExpenseCategories();
+    const {
+        data: categoriesData,
+        loading: loadingCategories,
+        error: categoryError,
+    } = getAllExpenseCategories();
 
-    const [isCreateOpen, setIsCreateOpen] = useState(false);
-    const [editExpense, setEditExpense] = useState<OtherExpense | null>(null);
-    const [message, setMessage] = useState("");
+    const { create, loading: saving, error: saveError } = createOtherExpense();
 
-    const expenses = expenseData ?? [];
-    const categories = categoryData ?? [];
+    const expenses = expensesData ?? [];
+    const categories = categoriesData ?? [];
 
     useEffect(() => {
         if (!message) return;
@@ -29,167 +47,266 @@ export default function OtherExpensesPage() {
         return () => window.clearTimeout(timer);
     }, [message]);
 
-    function handleSuccess() {
-        setMessage(
-            editExpense
-                ? "Expense updated successfully."
-                : "Expense created successfully.",
-        );
+    function handleChange(
+        field: keyof CreateOtherExpenseType,
+        value: string,
+    ) {
+        setForm((current) => ({
+            ...current,
+            [field]:
+                field === "amount" || field === "category_id"
+                    ? Number(value)
+                    : value,
+        }));
+    }
+
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        setFormError("");
+        setMessage("");
+
+        if (!form.description.trim()) {
+            setFormError("Description is required.");
+            return;
+        }
+
+        if (!Number.isFinite(form.amount) || form.amount <= 0) {
+            setFormError("Amount must be greater than zero.");
+            return;
+        }
+
+        if (!form.category_id) {
+            setFormError("Please select a category.");
+            return;
+        }
+
+        const success = await create({
+            ...form,
+            description: form.description.trim(),
+            currency: "AFN",
+            note: form.note?.trim() || "",
+        });
+
+        if (success) {
+            setForm({
+                ...initialForm,
+                expense_date: new Date().toISOString().slice(0, 10),
+            });
+            setFormError("");
+            setMessage("Expense created successfully.");
+        }
+    }
+
+    function handleUpdateSuccess() {
+        setEditExpense(null);
+        setMessage("Expense updated successfully.");
         refetch();
     }
 
-    function getCategoryName(expense: OtherExpense) {
-        const category = categories.find(
-            (item) =>
-                Number(item.category_id) === Number(expense.category_id),
-        );
-
-        return expense.category_title ?? category?.category_title ?? "—";
-    }
-
-    if (loading) {
-        return <p className="p-6">Loading other expenses...</p>;
-    }
-
-    if (error && expenses.length === 0) {
-        return (
-            <div className="space-y-4 p-6">
-                <p role="alert" className="text-red-500">
-                    Error: {error}
-                </p>
-                <button
-                    type="button"
-                    onClick={refetch}
-                    className="rounded-lg bg-blue-firstRate px-4 py-2 text-white"
-                >
-                    Try Again
-                </button>
-            </div>
-        );
-    }
-
     return (
-        <div className="space-y-6 p-4 sm:p-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-xl font-bold">Other Expenses</h1>
-                    <p className="mt-1 text-sm text-gray-500">
-                        Manage and track your other business expenses in one place.
-                    </p>
-                </div>
-
+        <div className="space-y-4 p-4 sm:p-5">
+            <div className="flex justify-end">
                 <button
                     type="button"
                     onClick={() => {
+                        setShowHistory((current) => !current);
                         setEditExpense(null);
-                        setIsCreateOpen(true);
                     }}
-                    className="rounded-lg bg-blue-firstRate px-4 py-2 font-semibold text-white shadow-sm transition hover:bg-blue-firstRate/90"
+                    className="rounded-lg bg-blue-firstRate px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-firstRate/90"
                 >
-                    + Add New Expense
+                    {showHistory ? "Back to Add Expense" : "View Expense History"}
                 </button>
             </div>
 
             {message && (
-                <p role="status" className="text-sm text-green-600">
+                <p
+                    role="status"
+                    className="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700"
+                >
                     {message}
                 </p>
             )}
 
-            {error && (
-                <p role="alert" className="text-sm text-red-500">
-                    {error}
-                </p>
-            )}
+            {!showHistory ? (
+                <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
+                    <div className="mb-4">
+                        <h1 className="text-lg font-bold text-gray-900">
+                            Add New Expense
+                        </h1>
+                        <p className="mt-1 text-xs text-gray-500">
+                            Enter the details of your business expense.
+                        </p>
+                    </div>
 
-            <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
-                <table className="w-full min-w-[750px] border-collapse">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            {[
-                                "ID",
-                                "Description",
-                                "Amount",
-                                "Currency",
-                                "Category",
-                                "Expense Date",
-                                "Note",
-                                "Actions",
-                            ].map((heading) => (
-                                <th
-                                    key={heading}
-                                    className="whitespace-nowrap p-3 text-left text-sm font-semibold text-gray-700"
+                    <form onSubmit={handleSubmit} className="space-y-3">
+                        <div>
+                            <label
+                                htmlFor="expense-description"
+                                className="mb-1 block text-sm font-medium text-gray-700"
+                            >
+                                Description
+                            </label>
+                            <input
+                                id="expense-description"
+                                required
+                                value={form.description}
+                                onChange={(event) =>
+                                    handleChange("description", event.target.value)
+                                }
+                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-firstRate"
+                                placeholder="e.g. Bought office supplies"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <div>
+                                <label
+                                    htmlFor="expense-amount"
+                                    className="mb-1 block text-sm font-medium text-gray-700"
                                 >
-                                    {heading}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
+                                    Amount (AFN)
+                                </label>
+                                <input
+                                    id="expense-amount"
+                                    required
+                                    type="number"
+                                    min="0.01"
+                                    step="0.01"
+                                    value={form.amount || ""}
+                                    onChange={(event) =>
+                                        handleChange("amount", event.target.value)
+                                    }
+                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-firstRate"
+                                    placeholder="Enter amount"
+                                />
+                            </div>
 
-                    <tbody>
-                        {expenses.map((expense, index) => {
-                            const id = expense.id ?? expense.expense_id;
-
-                            return (
-                                <tr
-                                    key={id ?? index}
-                                    className="border-b border-gray-100 transition hover:bg-blue-50"
+                            <div>
+                                <label
+                                    htmlFor="expense-currency"
+                                    className="mb-1 block text-sm font-medium text-gray-700"
                                 >
-                                    <td className="whitespace-nowrap p-3 text-sm">
-                                        {id ?? "—"}
-                                    </td>
-                                    <td className="p-3 text-sm">{expense.description || "—"}</td>
-                                    <td className="whitespace-nowrap p-3 text-sm">
-                                        {formatNumber(Number(expense.amount))}
-                                    </td>
-                                    <td className="whitespace-nowrap p-3 text-sm">
-                                        {expense.currency || "—"}
-                                    </td>
-                                    <td className="p-3 text-sm">{getCategoryName(expense)}</td>
-                                    <td className="whitespace-nowrap p-3 text-sm">
-                                        {expense.expense_date?.slice(0, 10) || "—"}
-                                    </td>
-                                    <td className="max-w-[220px] p-3 text-sm">
-                                        {expense.note || "—"}
-                                    </td>
-                                    <td className="whitespace-nowrap p-3">
-                                        <button
-                                            type="button"
-                                            onClick={() => setEditExpense(expense)}
-                                            className="rounded-lg bg-yellow-500 px-3 py-1.5 text-sm text-white transition hover:bg-yellow-600"
-                                        >
-                                            Edit
-                                        </button>
-                                    </td>
-                                </tr>
-                            );
-                        })}
+                                    Currency
+                                </label>
+                                <input
+                                    id="expense-currency"
+                                    value="AFN"
+                                    readOnly
+                                    className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-700"
+                                />
+                            </div>
 
-                        {expenses.length === 0 && (
-                            <tr>
-                                <td colSpan={8} className="p-6 text-center text-gray-500">
-                                    No other expenses found.
-                                </td>
-                            </tr>
+                            <div>
+                                <label
+                                    htmlFor="expense-category"
+                                    className="mb-1 block text-sm font-medium text-gray-700"
+                                >
+                                    Category
+                                </label>
+                                <select
+                                    id="expense-category"
+                                    required
+                                    value={form.category_id || ""}
+                                    onChange={(event) =>
+                                        handleChange("category_id", event.target.value)
+                                    }
+                                    disabled={loadingCategories}
+                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-firstRate disabled:bg-gray-100"
+                                >
+                                    <option value="">
+                                        {loadingCategories
+                                            ? "Loading categories..."
+                                            : "Select category"}
+                                    </option>
+                                    {categories
+                                        .filter((category) => category.status === "active")
+                                        .map((category) => (
+                                            <option
+                                                key={category.category_id}
+                                                value={category.category_id}
+                                            >
+                                                {category.category_title}
+                                            </option>
+                                        ))}
+                                </select>
+                                {categoryError && (
+                                    <p role="alert" className="mt-1 text-xs text-red-600">
+                                        Could not load expense categories.
+                                    </p>
+                                )}
+                            </div>
+
+                            <div>
+                                <label
+                                    htmlFor="expense-date"
+                                    className="mb-1 block text-sm font-medium text-gray-700"
+                                >
+                                    Expense Date
+                                </label>
+                                <input
+                                    id="expense-date"
+                                    required
+                                    type="date"
+                                    value={form.expense_date}
+                                    onChange={(event) =>
+                                        handleChange("expense_date", event.target.value)
+                                    }
+                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-firstRate"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label
+                                htmlFor="expense-note"
+                                className="mb-1 block text-sm font-medium text-gray-700"
+                            >
+                                Note
+                            </label>
+                            <textarea
+                                id="expense-note"
+                                rows={2}
+                                value={form.note ?? ""}
+                                onChange={(event) =>
+                                    handleChange("note", event.target.value)
+                                }
+                                className="w-full resize-y rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-firstRate"
+                                placeholder="Optional note"
+                            />
+                        </div>
+
+                        {(formError || saveError) && (
+                            <p role="alert" className="text-sm text-red-600">
+                                {formError || saveError}
+                            </p>
                         )}
-                    </tbody>
-                </table>
-            </div>
 
-            <p className="text-sm text-gray-500">
-                Total expenses: {expenses.length}
-            </p>
-
-            <CreateOtherExpenseModal
-                isOpen={isCreateOpen}
-                onClose={() => setIsCreateOpen(false)}
-                onSuccess={handleSuccess}
-            />
+                        <div className="flex justify-end pt-1">
+                            <button
+                                type="submit"
+                                disabled={saving || loadingCategories}
+                                className="rounded-lg bg-blue-firstRate px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-firstRate/90 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                {saving ? "Saving..." : "Save Expense"}
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            ) : (
+                <OtherExpenseHistory
+                    expenses={expenses}
+                    categories={categories}
+                    loading={loading}
+                    error={error}
+                    onRetry={refetch}
+                    onEdit={setEditExpense}
+                />
+            )}
 
             <UpdateOtherExpenseModal
                 expense={editExpense}
                 onClose={() => setEditExpense(null)}
-                onSuccess={handleSuccess}
+                onSuccess={handleUpdateSuccess}
             />
         </div>
     );
