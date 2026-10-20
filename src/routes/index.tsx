@@ -1,7 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import DashboardLayout from "../components/layout/DashboardLayout/DashboardLayout";
-import IncomePage from "../pages/Income/income";
 import HomePage from "../pages/Dashboard/Home-page";
 import EmployeesPage from "../pages/Employees/Register";
 import ContractPage from "../pages/Employees/contract";
@@ -17,7 +16,6 @@ const AppRoutes = () => (
     <Routes>
       <Route element={<DashboardLayout />}>
         <Route path="/" element={<HomePage />} />
-        <Route path="income" element={<IncomePage />} />
         <Route path="Income-transaction" element={<IncomeTransactionPage />} />
         <Route path="employees" element={<EmployeesPage />} />
         <Route path="contracts" element={<ContractPage />} />

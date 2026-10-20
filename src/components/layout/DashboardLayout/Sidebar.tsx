@@ -66,16 +66,6 @@ const Sidebar = () => {
           label: "Contract",
           icon: <LiaFileContractSolid />,
         },
-        {
-          path: "/employee-register-history",
-          label: "Register History",
-          icon: <IoManSharp />,
-        },
-        {
-          path: "/contract-history",
-          label: "Contract History",
-          icon: <LiaFileContractSolid />,
-        },
       ],
     },
     {
@@ -84,14 +74,9 @@ const Sidebar = () => {
       menuId: "income",
       subItems: [
         {
-          path: "/income",
+          path: "/Income-transaction",
           label: "Income",
           icon: <FaFileInvoiceDollar />,
-        },
-        {
-          path: "/Income-transaction",
-          label: "Income Transaction",
-          icon: <GrTransaction />,
         },
       ],
     },

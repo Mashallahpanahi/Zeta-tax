@@ -1,3 +1,5 @@
+// programmer Negin Mohamadi 2026/10/20
+
 import { useEffect, useState } from "react";
 import { formatNumber } from "../../utils/formatNumber";
 import {
@@ -470,7 +472,7 @@ export default function IncomeTransactionPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold text-gray-900">
-            Income Transactions
+            List of Received Income
           </h1>
 
           <p className="mt-1 text-sm text-gray-500">
