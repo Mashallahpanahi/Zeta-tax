@@ -97,9 +97,9 @@ export default function EmployeeRegisterHistory() {
               Employee Register History
             </h1>
 
-            {visibleMessage && (
+            {/* {visibleMessage && (
               <p className="text-sm text-green-600">{visibleMessage}</p>
-            )}
+            )} */}
           </div>
 
           <p className="mt-1 text-sm text-gray-500">
@@ -163,11 +163,10 @@ export default function EmployeeRegisterHistory() {
                 {/* Status badge */}
                 <td className="whitespace-nowrap px-2 py-3">
                   <span
-                    className={`inline-block rounded px-2 py-1 text-xs font-medium ${
-                      emp.status === "active"
+                    className={`inline-block rounded px-2 py-1 text-xs font-medium ${emp.status === "active"
                         ? "bg-green-100 text-green-700"
                         : "bg-red-100 text-red-700"
-                    }`}
+                      }`}
                   >
                     {emp.status || "—"}
                   </span>

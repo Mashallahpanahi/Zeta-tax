@@ -1,7 +1,18 @@
 import React from "react";
 import { FaEllipsisH } from "react-icons/fa";
+import { afghaniToDollar } from "../../utils/afghaniToDollar";
+import { dollarToAfghani } from "../../utils/dollarToAfghani";
+import { calculateTax } from "../../utils/calculateTax";
 
 const HomePage = () => {
+  const af_to_dollar = afghaniToDollar(64000, 60);
+  const dollar_to_af = dollarToAfghani(100, 60);
+  const tax = calculateTax(100000);
+
+  console.log("Afghani to Dollar:", af_to_dollar);
+  console.log("Dollar to Afghani:", dollar_to_af);
+  console.log("Calculated Tax:", tax);
+
   return (
     <div className="flex flex-col gap-8">
       {/* Page Title */}
