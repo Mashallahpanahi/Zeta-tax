@@ -1,4 +1,3 @@
-import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import DashboardLayout from "../components/layout/DashboardLayout/DashboardLayout";
@@ -9,7 +8,6 @@ import EmployeesPage from "../pages/Employees/Register";
 import ContractPage from "../pages/Employees/contract";
 
 import IncomeTransactionPage from "../pages/Income/Income-transaction";
-import TransactionHistory from "../pages/Income/TransactionHistory";
 import EmployeeRegisterHistory from "../pages/Employees/Employee-register-history";
 import EmployeeContractHistory from "../pages/Employees/EmployeeContractHistory";
 
@@ -25,7 +23,6 @@ const AppRoutes = () => (
         <Route path="contracts" element={<ContractPage />} />
 
         <Route path="Income-transaction" element={<IncomeTransactionPage />} />
-        <Route path="transaction-history" element={<TransactionHistory />} />
         <Route
           path="employee-register-history"
           element={<EmployeeRegisterHistory />}

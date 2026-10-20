@@ -5,11 +5,10 @@ import {
   updateIncomeTransaction,
   type IncomeTransactionType,
 } from "../../api/incomeTransactionApi";
-import TransactionHistory from "./TransactionHistory";
 
 const BASE_URL = "http://localhost:3001";
 
-type NewIncomeForm = {
+type IncomeForm = {
   date: string;
   amount: string;
   currency: string;
@@ -19,7 +18,9 @@ type NewIncomeForm = {
   description: string;
 };
 
-const createEmptyForm = (): NewIncomeForm => ({
+type EditForm = IncomeForm;
+
+const createEmptyForm = (): IncomeForm => ({
   date: new Date().toISOString().slice(0, 10),
   amount: "",
   currency: "USD",
@@ -29,30 +30,45 @@ const createEmptyForm = (): NewIncomeForm => ({
   description: "",
 });
 
-function getTransactionId(transaction: IncomeTransactionType) {
+const DETAIL_FIELDS = [
+  ["date", "Date"],
+  ["amount", "Amount"],
+  ["currency", "Currency"],
+  ["recorded_by", "Recorded By"],
+  ["received_from", "Received From"],
+  ["income_type", "Income Type"],
+  ["description", "Description"],
+  ["used", "Used"],
+] as const;
+
+function getTransactionId(transaction: IncomeTransactionType): string | null {
   const id =
     transaction.income_id ??
     transaction.id ??
     transaction.transaction_id ??
     transaction._id;
 
-  if (typeof id === "string" || typeof id === "number") {
-    return String(id);
-  }
-
-  return null;
+  return typeof id === "string" || typeof id === "number" ? String(id) : null;
 }
 
 function formatValue(value: unknown): string {
-  if (value === null || value === undefined || value === "") {
+  if (value === null || value === undefined || value === "") return "-";
+  if (typeof value === "boolean") return value ? "Yes" : "No";
+  if (typeof value === "object") return JSON.stringify(value);
+  return String(value);
+}
+
+function formatAmount(value: unknown): string {
+  if (
+    value === null ||
+    value === undefined ||
+    value === "" ||
+    !Number.isFinite(Number(value))
+  ) {
     return "-";
   }
 
-  if (typeof value === "object") {
-    return JSON.stringify(value, null, 2);
-  }
-
-  return String(value);
+  return formatNumber(Number(value));
 }
 
 function formatColumnTitle(column: string): string {
@@ -71,6 +87,10 @@ function formatColumnTitle(column: string): string {
     titles[column] ??
     column.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())
   );
+}
+
+function fieldClass() {
+  return "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 }
 
 export default function IncomeTransactionPage() {
@@ -94,39 +114,29 @@ export default function IncomeTransactionPage() {
   const [editTransaction, setEditTransaction] =
     useState<IncomeTransactionType | null>(null);
 
-  const [editForm, setEditForm] = useState({
-    date: "",
-    amount: "",
-    currency: "USD",
-    description: "",
-  });
+  const [editForm, setEditForm] = useState<EditForm>(createEmptyForm);
 
   const [visibleMessage, setVisibleMessage] = useState<string | null>(null);
+
   const [localError, setLocalError] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
   const [adding, setAdding] = useState(false);
 
   const [newTransaction, setNewTransaction] =
-    useState<NewIncomeForm>(createEmptyForm);
+    useState<IncomeForm>(createEmptyForm);
 
   useEffect(() => {
     if (!message) return;
 
     setVisibleMessage(message);
 
-    const timer = setTimeout(() => {
-      setVisibleMessage(null);
-    }, 5000);
+    const timer = window.setTimeout(() => setVisibleMessage(null), 5000);
 
-    return () => clearTimeout(timer);
+    return () => window.clearTimeout(timer);
   }, [message]);
 
   const transactionList = transactions ?? [];
-
-  const preferredColumns = ["date", "amount", "currency", "description"];
-
-  const columns = preferredColumns;
+  const columns = ["date", "amount", "currency", "description"];
 
   const openEdit = (transaction: IncomeTransactionType) => {
     setEditTransaction(transaction);
@@ -135,10 +145,45 @@ export default function IncomeTransactionPage() {
       date: String(transaction.date ?? "").slice(0, 10),
       amount: String(transaction.amount ?? ""),
       currency: String(transaction.currency ?? "USD"),
+      recorded_by: String(transaction.recorded_by ?? ""),
+      received_from: String(transaction.received_from ?? ""),
+      income_type: String(transaction.income_type ?? "Monthly"),
       description: String(transaction.description ?? ""),
     });
 
     setLocalError("");
+  };
+
+  const validateForm = (form: IncomeForm): string => {
+    if (!form.date) {
+      return "Please select a date.";
+    }
+
+    if (
+      form.amount.trim() === "" ||
+      !Number.isFinite(Number(form.amount)) ||
+      Number(form.amount) <= 0
+    ) {
+      return "Please enter an amount greater than zero.";
+    }
+
+    if (!form.currency) {
+      return "Please select a currency.";
+    }
+
+    if (!form.recorded_by.trim()) {
+      return "Please enter Recorded By.";
+    }
+
+    if (!form.received_from.trim()) {
+      return "Please enter Received From.";
+    }
+
+    if (!form.income_type) {
+      return "Please select an income type.";
+    }
+
+    return "";
   };
 
   const handleUpdate = async () => {
@@ -151,17 +196,10 @@ export default function IncomeTransactionPage() {
       return;
     }
 
-    if (!editForm.date) {
-      setLocalError("Please select a date.");
-      return;
-    }
+    const validationError = validateForm(editForm);
 
-    if (
-      editForm.amount.trim() === "" ||
-      !Number.isFinite(Number(editForm.amount)) ||
-      Number(editForm.amount) <= 0
-    ) {
-      setLocalError("Please enter an amount greater than zero.");
+    if (validationError) {
+      setLocalError(validationError);
       return;
     }
 
@@ -173,6 +211,9 @@ export default function IncomeTransactionPage() {
         date: editForm.date,
         amount: Number(editForm.amount),
         currency: editForm.currency,
+        recorded_by: editForm.recorded_by.trim(),
+        received_from: editForm.received_from.trim(),
+        income_type: editForm.income_type,
         description: editForm.description.trim(),
       };
 
@@ -202,32 +243,10 @@ export default function IncomeTransactionPage() {
   const handleAddTransaction = async () => {
     setLocalError("");
 
-    if (!newTransaction.date) {
-      setLocalError("Please select a date.");
-      return;
-    }
+    const validationError = validateForm(newTransaction);
 
-    if (
-      newTransaction.amount.trim() === "" ||
-      !Number.isFinite(Number(newTransaction.amount)) ||
-      Number(newTransaction.amount) <= 0
-    ) {
-      setLocalError("Please enter an amount greater than zero.");
-      return;
-    }
-
-    if (!newTransaction.recorded_by.trim()) {
-      setLocalError("Please enter Recorded By.");
-      return;
-    }
-
-    if (!newTransaction.received_from.trim()) {
-      setLocalError("Please enter Received From.");
-      return;
-    }
-
-    if (!newTransaction.income_type) {
-      setLocalError("Please select an income type.");
+    if (validationError) {
+      setLocalError(validationError);
       return;
     }
 
@@ -293,10 +312,138 @@ export default function IncomeTransactionPage() {
     }
   };
 
-  // Show the separate TransactionHistory component.
-  if (showHistory) {
-    return <TransactionHistory onBack={() => setShowHistory(false)} />;
-  }
+  const updateNewField = (field: keyof IncomeForm, value: string) => {
+    setNewTransaction((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  };
+
+  const updateEditField = (field: keyof EditForm, value: string) => {
+    setEditForm((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  };
+
+  const renderFormFields = (
+    form: IncomeForm,
+    onChange: (field: keyof IncomeForm, value: string) => void,
+  ) => (
+    <>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">
+            Date
+          </label>
+
+          <input
+            type="date"
+            value={form.date}
+            onChange={(event) => onChange("date", event.target.value)}
+            required
+            className={fieldClass()}
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">
+            Amount
+          </label>
+
+          <input
+            type="number"
+            min="0.01"
+            step="0.01"
+            value={form.amount}
+            onChange={(event) => onChange("amount", event.target.value)}
+            placeholder="Enter amount"
+            required
+            className={fieldClass()}
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">
+            Currency
+          </label>
+
+          <select
+            value={form.currency}
+            onChange={(event) => onChange("currency", event.target.value)}
+            required
+            className={fieldClass()}
+          >
+            <option value="USD">USD</option>
+            <option value="AFN">AFN</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">
+            Recorded By
+          </label>
+
+          <input
+            type="text"
+            value={form.recorded_by}
+            onChange={(event) => onChange("recorded_by", event.target.value)}
+            placeholder="Enter name"
+            required
+            className={fieldClass()}
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">
+            Received From
+          </label>
+
+          <input
+            type="text"
+            value={form.received_from}
+            onChange={(event) => onChange("received_from", event.target.value)}
+            placeholder="Enter client or source"
+            required
+            className={fieldClass()}
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">
+            Income Type
+          </label>
+
+          <select
+            value={form.income_type}
+            onChange={(event) => onChange("income_type", event.target.value)}
+            required
+            className={fieldClass()}
+          >
+            <option value="Monthly">Monthly</option>
+            <option value="Salary">Salary</option>
+            <option value="Project">Project</option>
+            <option value="Sales">Sales</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-gray-700">
+          Description
+        </label>
+
+        <textarea
+          value={form.description}
+          onChange={(event) => onChange("description", event.target.value)}
+          rows={3}
+          placeholder="Enter transaction description"
+          className={fieldClass()}
+        />
+      </div>
+    </>
+  );
 
   if (loading) {
     return <p className="p-6">Loading income transactions...</p>;
@@ -310,7 +457,7 @@ export default function IncomeTransactionPage() {
         <button
           type="button"
           onClick={() => void refetch()}
-          className="rounded-lg bg-blue-firstRate px-4 py-2 text-white"
+          className="rounded-lg bg-blue-firstRate px-4 py-2 text-white transition hover:!bg-blue-500"
         >
           Retry
         </button>
@@ -319,42 +466,35 @@ export default function IncomeTransactionPage() {
   }
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Page header and action buttons */}
+    <div className="space-y-6 p-4 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold">Income Transactions</h1>
+          <h1 className="text-xl font-bold text-gray-900">
+            Income Transactions
+          </h1>
 
           <p className="mt-1 text-sm text-gray-500">
             Total transactions: {transactionList.length}
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setShowHistory(true)}
-            className="whitespace-nowrap rounded-lg bg-blue-firstRate px-4 py-2 text-sm text-white transition hover:!bg-blue-500"
-          >
-            History
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setLocalError("");
-              setNewTransaction(createEmptyForm());
-              setShowAddForm(true);
-            }}
-            className="whitespace-nowrap rounded-lg bg-blue-firstRate px-4 py-2 text-sm text-white transition hover:!bg-blue-500"
-          >
-            + Add Transaction
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => {
+            setLocalError("");
+            setNewTransaction(createEmptyForm());
+            setShowAddForm(true);
+          }}
+          className="whitespace-nowrap rounded-lg bg-blue-firstRate px-4 py-2 text-sm text-white transition hover:!bg-blue-500"
+        >
+          + Add Transaction
+        </button>
       </div>
 
       {visibleMessage && (
-        <p className="text-sm text-green-600">{visibleMessage}</p>
+        <p className="rounded-lg bg-green-50 p-3 text-sm text-green-700">
+          {visibleMessage}
+        </p>
       )}
 
       {updateError && (
@@ -364,21 +504,22 @@ export default function IncomeTransactionPage() {
       {localError && !editTransaction && !showAddForm && (
         <p className="text-sm text-red-500">{localError}</p>
       )}
-      <div className="w-full overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
-        <table className="w-full min-w-[600px] table-fixed border-collapse">
+
+      <div className="w-full overflow-hidden rounded-xl border border-gray-200 shadow-sm">
+        <table className="w-full table-fixed border-collapse">
           <thead className="bg-gray-50">
             <tr>
               {columns.map((column) => (
                 <th
                   key={column}
-                  className="break-words p-3 text-left text-sm font-semibold text-gray-700"
+                  className="break-words p-3 text-left text-xs font-semibold text-gray-700 sm:text-sm"
                 >
                   {formatColumnTitle(column)}
                 </th>
               ))}
 
-              <th className="w-44 p-2 text-left text-sm font-semibold text-gray-700">
-                Actions
+              <th className="w-32 p-2 text-left text-xs font-semibold text-gray-700 sm:w-44 sm:text-sm">
+                Action
               </th>
             </tr>
           </thead>
@@ -396,21 +537,25 @@ export default function IncomeTransactionPage() {
                     {columns.map((column) => (
                       <td
                         key={column}
-                        className="overflow-hidden text-ellipsis whitespace-nowrap p-3 text-sm"
-                        title={formatValue(transaction[column])}
+                        className="overflow-hidden text-ellipsis whitespace-nowrap p-3 text-xs sm:text-sm"
+                        title={
+                          column === "amount"
+                            ? formatAmount(transaction.amount)
+                            : formatValue(transaction[column])
+                        }
                       >
                         {column === "amount"
-                          ? formatNumber(Number(transaction.amount))
+                          ? formatAmount(transaction.amount)
                           : formatValue(transaction[column])}
                       </td>
                     ))}
 
                     <td className="p-2">
-                      <div className="flex flex-nowrap items-center gap-1">
+                      <div className="flex flex-wrap items-center gap-1">
                         <button
                           type="button"
                           onClick={() => setSelectedTransaction(transaction)}
-                          className="whitespace-nowrap rounded-md bg-blue-firstRate px-2 py-1 text-xs text-white transition-colors hover:!bg-blue-500"
+                          className="rounded-md bg-blue-firstRate px-2 py-1 text-xs text-white transition hover:!bg-blue-500"
                         >
                           Show More
                         </button>
@@ -418,7 +563,7 @@ export default function IncomeTransactionPage() {
                         <button
                           type="button"
                           onClick={() => openEdit(transaction)}
-                          className="whitespace-nowrap rounded-md bg-yellow-500 px-2 py-1 text-xs text-white transition-colors hover:bg-yellow-600"
+                          className="rounded-md bg-yellow-500 px-2 py-1 text-xs text-white transition hover:bg-yellow-600"
                         >
                           Edit
                         </button>
@@ -441,9 +586,10 @@ export default function IncomeTransactionPage() {
         </table>
       </div>
 
+      {/* Add Transaction modal */}
       {showAddForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-5 shadow-xl sm:p-6">
             <h2 className="mb-2 text-lg font-bold">Add Income Transaction</h2>
 
             <p className="mb-5 text-sm text-gray-500">
@@ -457,151 +603,7 @@ export default function IncomeTransactionPage() {
               }}
               className="space-y-4"
             >
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Date
-                  </label>
-
-                  <input
-                    type="date"
-                    value={newTransaction.date}
-                    onChange={(event) =>
-                      setNewTransaction((current) => ({
-                        ...current,
-                        date: event.target.value,
-                      }))
-                    }
-                    required
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Amount
-                  </label>
-
-                  <input
-                    type="number"
-                    min="0.01"
-                    step="0.01"
-                    value={newTransaction.amount}
-                    onChange={(event) =>
-                      setNewTransaction((current) => ({
-                        ...current,
-                        amount: event.target.value,
-                      }))
-                    }
-                    placeholder="Enter amount"
-                    required
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Currency
-                  </label>
-
-                  <select
-                    value={newTransaction.currency}
-                    onChange={(event) =>
-                      setNewTransaction((current) => ({
-                        ...current,
-                        currency: event.target.value,
-                      }))
-                    }
-                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500"
-                  >
-                    <option value="USD">USD</option>
-                    <option value="AFN">AFN</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Recorded By
-                  </label>
-
-                  <input
-                    type="text"
-                    value={newTransaction.recorded_by}
-                    onChange={(event) =>
-                      setNewTransaction((current) => ({
-                        ...current,
-                        recorded_by: event.target.value,
-                      }))
-                    }
-                    placeholder="Enter name"
-                    required
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Received From
-                  </label>
-
-                  <input
-                    type="text"
-                    value={newTransaction.received_from}
-                    onChange={(event) =>
-                      setNewTransaction((current) => ({
-                        ...current,
-                        received_from: event.target.value,
-                      }))
-                    }
-                    placeholder="Enter client or source"
-                    required
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Income Type
-                  </label>
-
-                  <select
-                    value={newTransaction.income_type}
-                    onChange={(event) =>
-                      setNewTransaction((current) => ({
-                        ...current,
-                        income_type: event.target.value,
-                      }))
-                    }
-                    required
-                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500"
-                  >
-                    <option value="Monthly">Monthly</option>
-                    <option value="Salary">Salary</option>
-                    <option value="Project">Project</option>
-                    <option value="Sales">Sales</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  Description
-                </label>
-
-                <textarea
-                  value={newTransaction.description}
-                  onChange={(event) =>
-                    setNewTransaction((current) => ({
-                      ...current,
-                      description: event.target.value,
-                    }))
-                  }
-                  rows={3}
-                  placeholder="Enter transaction description"
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
-                />
-              </div>
+              {renderFormFields(newTransaction, updateNewField)}
 
               {localError && (
                 <p className="whitespace-pre-wrap text-sm text-red-500">
@@ -617,7 +619,7 @@ export default function IncomeTransactionPage() {
                     setLocalError("");
                   }}
                   disabled={adding}
-                  className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -625,7 +627,7 @@ export default function IncomeTransactionPage() {
                 <button
                   type="submit"
                   disabled={adding}
-                  className="rounded-lg bg-blue-firstRate px-4 py-2 text-white hover:opacity-90 disabled:opacity-50"
+                  className="rounded-lg bg-blue-firstRate px-4 py-2 text-white transition hover:opacity-90 disabled:opacity-50"
                 >
                   {adding ? "Adding..." : "Add Transaction"}
                 </button>
@@ -645,11 +647,12 @@ export default function IncomeTransactionPage() {
             className="max-h-[85vh] w-full max-w-2xl overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-2xl"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-6 py-5">
+            <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-5 py-4 sm:px-6">
               <div>
                 <h2 className="text-xl font-bold text-gray-900">
                   Transaction Details
                 </h2>
+
                 <p className="mt-1 text-sm text-gray-500">
                   View income transaction information
                 </p>
@@ -665,34 +668,24 @@ export default function IncomeTransactionPage() {
               </button>
             </div>
 
-            <div className="max-h-[calc(85vh-90px)] overflow-y-auto p-6">
-              <div className="space-y-3">
-                {Object.entries(selectedTransaction)
-                  .filter(
-                    ([key]) =>
-                      ![
-                        "income_id",
-                        "id",
-                        "transaction_id",
-                        "_id",
-                        "created_at",
-                        "updated_at",
-                      ].includes(key),
-                  )
-                  .map(([key, value]) => (
-                    <div
-                      key={key}
-                      className="grid grid-cols-1 gap-2 rounded-xl border border-gray-100 bg-gray-50/70 px-4 py-4 transition hover:border-blue-100 hover:bg-blue-50/50 sm:grid-cols-3 sm:items-start sm:gap-4"
-                    >
-                      <p className="text-sm font-bold text-gray-800">
-                        {formatColumnTitle(key)}
-                      </p>
+            <div className="max-h-[calc(85vh-90px)] overflow-y-auto p-5 sm:p-6">
+              <div className="space-y-4">
+                {DETAIL_FIELDS.map(([key, label]) => (
+                  <div
+                    key={key}
+                    className="grid grid-cols-1 gap-1 sm:grid-cols-3 sm:gap-4"
+                  >
+                    <p className="text-sm font-semibold text-gray-800">
+                      {label}
+                    </p>
 
-                      <p className="break-words text-sm font-medium leading-6 text-gray-600 sm:col-span-2">
-                        {formatValue(value)}
-                      </p>
-                    </div>
-                  ))}
+                    <p className="break-words text-sm leading-6 text-gray-600 sm:col-span-2">
+                      {key === "amount"
+                        ? formatAmount(selectedTransaction[key])
+                        : formatValue(selectedTransaction[key])}
+                    </p>
+                  </div>
+                ))}
               </div>
 
               <div className="mt-6 flex justify-end border-t border-gray-100 pt-4">
@@ -712,123 +705,50 @@ export default function IncomeTransactionPage() {
       {/* Edit Transaction modal */}
       {editTransaction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-5 shadow-xl sm:p-6">
             <h2 className="mb-2 text-lg font-bold">Edit Income Transaction</h2>
 
             <p className="mb-5 text-sm text-gray-500">
               Update the transaction details using the fields below.
             </p>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  Date
-                </label>
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                void handleUpdate();
+              }}
+              className="space-y-4"
+            >
+              {renderFormFields(editForm, updateEditField)}
 
-                <input
-                  type="date"
-                  value={editForm.date}
-                  onChange={(event) =>
-                    setEditForm((current) => ({
-                      ...current,
-                      date: event.target.value,
-                    }))
-                  }
-                  required
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
-                />
-              </div>
+              {(localError || updateError) && (
+                <p className="whitespace-pre-wrap text-sm text-red-500">
+                  {localError || updateError}
+                </p>
+              )}
 
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  Amount
-                </label>
-
-                <input
-                  type="number"
-                  min="0.01"
-                  step="0.01"
-                  value={editForm.amount}
-                  onChange={(event) =>
-                    setEditForm((current) => ({
-                      ...current,
-                      amount: event.target.value,
-                    }))
-                  }
-                  required
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  Currency
-                </label>
-
-                <select
-                  value={editForm.currency}
-                  onChange={(event) =>
-                    setEditForm((current) => ({
-                      ...current,
-                      currency: event.target.value,
-                    }))
-                  }
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500"
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditTransaction(null);
+                    setLocalError("");
+                  }}
+                  disabled={updating}
+                  className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
                 >
-                  <option value="USD">USD</option>
-                  <option value="AFN">AFN</option>
-                  <option value="EUR">EUR</option>
-                </select>
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={updating}
+                  className="rounded-lg bg-blue-firstRate px-4 py-2 text-white transition hover:opacity-90 disabled:opacity-50"
+                >
+                  {updating ? "Saving..." : "Save Changes"}
+                </button>
               </div>
-
-              <div className="sm:col-span-2">
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  Description
-                </label>
-
-                <textarea
-                  value={editForm.description}
-                  onChange={(event) =>
-                    setEditForm((current) => ({
-                      ...current,
-                      description: event.target.value,
-                    }))
-                  }
-                  rows={3}
-                  placeholder="Enter transaction description"
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
-                />
-              </div>
-            </div>
-
-            {(localError || updateError) && (
-              <p className="mt-2 whitespace-pre-wrap text-sm text-red-500">
-                {localError || updateError}
-              </p>
-            )}
-
-            <div className="mt-4 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setEditTransaction(null);
-                  setLocalError("");
-                }}
-                disabled={updating}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-              >
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                onClick={() => void handleUpdate()}
-                disabled={updating}
-                className="rounded-lg bg-blue-firstRate px-4 py-2 text-white hover:opacity-90 disabled:opacity-50"
-              >
-                {updating ? "Saving..." : "Save Changes"}
-              </button>
-            </div>
+            </form>
           </div>
         </div>
       )}
