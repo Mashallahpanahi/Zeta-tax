@@ -377,7 +377,6 @@ export default function IncomeTransactionPage() {
             className={fieldClass()}
           >
             <option value="USD">USD</option>
-            <option value="AFN">AFN</option>
           </select>
         </div>
 

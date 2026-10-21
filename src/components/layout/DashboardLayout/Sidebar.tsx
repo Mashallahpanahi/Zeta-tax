@@ -5,6 +5,8 @@ import { IoManSharp } from "react-icons/io5";
 import { LiaFileContractSolid } from "react-icons/lia";
 import { GrTransaction } from "react-icons/gr";
 import { MdAddBusiness } from "react-icons/md";
+import { CiSettings } from "react-icons/ci";
+import { TbFileSettingsFilled } from "react-icons/tb";
 import {
   FaHome,
   FaMoneyBillWave,
@@ -94,6 +96,18 @@ const Sidebar = () => {
           path: "/other-expenses",
           label: "Other Expense",
           icon: <TbReceipt />,
+        },
+      ],
+    },
+    {
+      label: "Settings",
+      icon: <CiSettings />,
+      menuId: "",
+      subItems: [
+        {
+          path: "/settings-tax",
+          label: "Tax",
+          icon: <TbFileSettingsFilled />,
         },
       ],
     },
