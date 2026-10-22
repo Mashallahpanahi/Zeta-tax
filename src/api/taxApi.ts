@@ -2,7 +2,7 @@ import { useFetch } from "../hooks/useFetch";
 import { useCreate } from "../hooks/useCreate";
 import { useUpdate } from "../hooks/useUpdate";
 
-const BASE_URL = "http://localhost:3001";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // ---------- Types ----------
 export interface TaxType {
