@@ -242,7 +242,7 @@ export default function ExchangeToAFNPage() {
           className="rounded-lg bg-blue-firstRate px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
         >
           Exchange USD to AFN
-        </button>
+        </button> 
       </div>
 
       {message && (

@@ -78,12 +78,21 @@ export default function FinancialSummary() {
             ? "..."
             : `total = $${formatNumber(yearlyData?.transaction_income_usd?.total)}`}
         </div>
-        {/* ✅ Changed $ to AFN for Exchanged */}
-        <div className="border-r-2 border-gray-300 p-3 text-center flex items-center justify-center">
-          {isLoading
-            ? "..."
-            : `total = ${formatNumber(yearlyData?.exchanged_to_af_usd?.total)} AFN`}
+
+        {/* ✅ Yearly Exchanged Column: USD top, AFN bottom */}
+        <div className="border-r-2 border-gray-300 p-2 flex flex-col items-center justify-center">
+          <span className="font-semibold text-gray-800">
+            {isLoading
+              ? "..."
+              : `total = $${formatNumber(yearlyData?.exchanged_to_af_usd?.total)}`}
+          </span>
+          <span className="text-xs text-gray-500 mt-0.5">
+            {isLoading
+              ? ""
+              : `(total = ${formatNumber(yearlyData?.exchanged_to_af_afn?.total)} AFN)`}
+          </span>
         </div>
+
         <div className="p-3 flex justify-center items-center">
           <select
             value={year}
@@ -109,12 +118,21 @@ export default function FinancialSummary() {
             ? "..."
             : `total = $${formatNumber(monthlyData?.transaction_income_usd?.total)}`}
         </div>
-        {/* ✅ Changed $ to AFN for Exchanged */}
-        <div className="border-r-2 border-gray-300 p-3 text-center flex items-center justify-center">
-          {isLoading
-            ? "..."
-            : `total = ${formatNumber(monthlyData?.exchanged_to_af_usd?.total)} AFN`}
+
+        {/* ✅ Monthly Exchanged Column: USD top, AFN bottom */}
+        <div className="border-r-2 border-gray-300 p-2 flex flex-col items-center justify-center">
+          <span className="font-semibold text-gray-800">
+            {isLoading
+              ? "..."
+              : `total = $${formatNumber(monthlyData?.exchanged_to_af_usd?.total)}`}
+          </span>
+          <span className="text-xs text-gray-500 mt-0.5">
+            {isLoading
+              ? ""
+              : `(total = ${formatNumber(monthlyData?.exchanged_to_af_afn?.total)} AFN)`}
+          </span>
         </div>
+
         <div className="p-3 flex justify-center items-center">
           <select
             value={month}
