@@ -11,6 +11,7 @@ import EmployeeContractHistory from "../pages/Employees/EmployeeContractHistory"
 import ExpenseCategoryPage from "../pages/Expenses/ExpenseCategory";
 import OtherExpensesPage from "../pages/Expenses/OtherExpenses";
 import ExchangeToAFNPage from "../pages/Income/Exchange-to-AfN";
+import TaxPage from "../pages/Settings/tax/tax-Page";
 
 const AppRoutes = () => (
   <BrowserRouter>
@@ -29,6 +30,7 @@ const AppRoutes = () => (
         <Route path="other-expenses" element={<OtherExpensesPage />} />
         <Route path="exchange-to-afn" element={< ExchangeToAFNPage />} />
 
+        <Route path="settings-tax" element={<TaxPage />} />
       </Route>
     </Routes>
   </BrowserRouter>

@@ -1,13 +1,33 @@
+import { useEffect, useState } from "react";
 import React from "react";
 import { FaEllipsisH } from "react-icons/fa";
 import { afghaniToDollar } from "../../utils/afghaniToDollar";
 import { dollarToAfghani } from "../../utils/dollarToAfghani";
-import { calculateTax } from "../../utils/calculateTax";
+import { calculateTax, loadTaxRates } from "../../utils/calculateTax"; // Adjust path
 
 const HomePage = () => {
+
+  //------------------------------------------------------------for useing tax colculation
+  // 1. Create a state to force the page to update
+  const [isReady, setIsReady] = useState(false);
+  useEffect(() => {
+    // 2. Load the backend rates as soon as the page opens
+    const init = async () => {
+      await loadTaxRates();
+      setIsReady(true); // ✅ Triggers a re-render!
+    };
+    init();
+  }, []);
+  // 3. This will run twice:
+  // - First time with 0 (before API finishes)
+  // - Second time with backend data (when isReady becomes true)
+  const tax = calculateTax(100000);
+
+  console.log("Calculated Tax:", tax);
+    //------------------------------------------------------------
+
   const af_to_dollar = afghaniToDollar(64000, 60);
   const dollar_to_af = dollarToAfghani(100, 60);
-  const tax = calculateTax(100000);
 
   console.log("Afghani to Dollar:", af_to_dollar);
   console.log("Dollar to Afghani:", dollar_to_af);
