@@ -6,11 +6,8 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Add Current Balance Type
 export interface CurrentBalanceData {
-  month: number;
-  year: number;
-  current_balance: number;
-  last_entry_date: string;
-  balance_id: string;
+  date: string;
+  remainder: number;
 }
 
 // ... (Keep your existing useYearlyReport, useUnallocatedYearly, useMonthlyTotals hooks) ...

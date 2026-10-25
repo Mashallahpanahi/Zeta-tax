@@ -159,13 +159,15 @@ export default function FinancialSummary() {
           </span>
         </div>
         <div className="p-4 font-medium flex items-center">
-          Cash ={" "}
+          Cash = {/* ✅ Changed current_balance to remainder */}
           <span
-            className={`ml-2 font-bold ${Number(balanceData?.current_balance) < 0 ? "text-red-600" : "text-green-600"}`}
+            className={`ml-2 font-bold ${
+              Number(balanceData?.remainder) < 0
+                ? "text-red-600"
+                : "text-green-600"
+            }`}
           >
-            {isLoading
-              ? "..."
-              : `${formatNumber(balanceData?.current_balance)} AFN`}
+            {isLoading ? "..." : `${formatNumber(balanceData?.remainder)} AFN`}
           </span>
         </div>
       </div>
