@@ -9,6 +9,9 @@ import AddIncomeModal from "../../components/income/AddIncomeModal";
 import EditIncomeModal from "../../components/income/EditIncomeModal";
 import ViewIncomeModal from "../../components/income/ViewIncomeModal";
 
+// ✅ Import the Financial Summary component
+import FinancialSummary from "../../components/report/FinancialSummary";
+
 export default function IncomeTransactionPage() {
   // Toggle state: false = last 3 months, true = all data
   const [showAll, setShowAll] = useState(false);
@@ -79,6 +82,9 @@ export default function IncomeTransactionPage() {
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
+      {/* ✅ Financial Summary at the top of the page */}
+      <FinancialSummary />
+
       {/* Top Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -184,7 +190,7 @@ export default function IncomeTransactionPage() {
         </button>
       </div>
 
-      {/* Modals - Make sure they use activeRefetch to update the current view */}
+      {/* Modals */}
       <AddIncomeModal
         isOpen={showAddForm}
         onClose={() => setShowAddForm(false)}
