@@ -6,11 +6,8 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Add Current Balance Type
 export interface CurrentBalanceData {
-  month: number;
-  year: number;
-  current_balance: number;
-  last_entry_date: string;
-  balance_id: string;
+  date: string;
+  remainder: number;
 }
 
 // ... (Keep your existing useYearlyReport, useUnallocatedYearly, useMonthlyTotals hooks) ...
@@ -55,7 +52,9 @@ export interface UnallocatedYearlyData {
   year: number;
   transaction_income_usd: TotalWithCount;
   exchanged_to_af_usd: TotalWithCount;
+  exchanged_to_af_afn: TotalWithCount; //
   unallocated_usd: number;
+  total_expense?: TotalWithCount;
 }
 
 // 3. Monthly Totals Type
@@ -64,6 +63,8 @@ export interface MonthlyTotalsData {
   year: number;
   transaction_income_usd: TotalWithCount;
   exchanged_to_af_usd: TotalWithCount;
+  exchanged_to_af_afn: TotalWithCount; // ✅
+   total_expense?: TotalWithCount;
 }
 
 // ==========================================
