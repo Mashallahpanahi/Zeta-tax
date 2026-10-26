@@ -146,7 +146,7 @@ export default function ExchangeToAFNPage() {
           onClick={() => setIsModalOpen(true)}
           className="rounded-lg bg-blue-firstRate px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
         >
-          Exchange USD to AFN
+          Allocte new amount +
         </button>
       </div>
 

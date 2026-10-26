@@ -54,6 +54,7 @@ export interface UnallocatedYearlyData {
   exchanged_to_af_usd: TotalWithCount;
   exchanged_to_af_afn: TotalWithCount; //
   unallocated_usd: number;
+  total_expense?: TotalWithCount;
 }
 
 // 3. Monthly Totals Type
@@ -63,6 +64,7 @@ export interface MonthlyTotalsData {
   transaction_income_usd: TotalWithCount;
   exchanged_to_af_usd: TotalWithCount;
   exchanged_to_af_afn: TotalWithCount; // ✅
+   total_expense?: TotalWithCount;
 }
 
 // ==========================================

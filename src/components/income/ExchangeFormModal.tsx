@@ -113,7 +113,7 @@ export default function ExchangeFormModal({
       <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl max-h-[95vh] overflow-y-auto">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-900">
-            Exchange USD to AFN
+            Exchange USD to AFN(allocate)
           </h2>
           <button
             type="button"
@@ -215,7 +215,7 @@ export default function ExchangeFormModal({
 
             <div className="flex justify-between gap-4">
               <span className="text-sm text-gray-600">
-                Cash Flow and Remainder
+                Cash Flow and +Remainder
               </span>
               <span className="font-semibold text-gray-900">
                 {formatNumber(remainder)} AFN
