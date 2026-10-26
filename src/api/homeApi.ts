@@ -66,3 +66,11 @@ export const getHomeMonthlyTotals = (
     useFetch<HomeMonthlyTotals>(
         `${BASE_URL}/home/monthly-totals?month=${month}&year=${year}`,
     );
+
+export interface CurrentCashBalance {
+    date: string;
+    remainder: number;
+}
+
+export const getCurrentCashBalance = () =>
+    useFetch<CurrentCashBalance>(`${BASE_URL}/balance/current`);
