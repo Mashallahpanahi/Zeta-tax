@@ -12,10 +12,25 @@ import {
   FaFileInvoiceDollar,
 } from "react-icons/fa";
 
-import { getHomeYearlyReport, getHomeUnallocatedYearly, getHomeMonthlyTotals, } from "../../api/homeApi";
+import {
+  getHomeYearlyReport,
+  getHomeUnallocatedYearly,
+  getHomeMonthlyTotals,
+} from "../../api/homeApi";
 const MONTHS = [
-  "January", "February", "March", "April", "May", "June", "July", "August",
-  "September", "October", "November", "December",];
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 const CURRENT_DATE = new Date();
 const CURRENT_YEAR = CURRENT_DATE.getFullYear();
 const CURRENT_MONTH = CURRENT_DATE.getMonth() + 1;
@@ -26,10 +41,8 @@ const formatNumber = (value: number | null | undefined) =>
     maximumFractionDigits: 2,
   });
 
-const formatCurrency = (
-  value: number | null | undefined,
-  currency: string,
-) => `${currency} ${formatNumber(value)}`;
+const formatCurrency = (value: number | null | undefined, currency: string) =>
+  `${currency} ${formatNumber(value)}`;
 
 const HomePage = () => {
   const [year, setYear] = useState(CURRENT_YEAR);
@@ -47,31 +60,25 @@ const HomePage = () => {
   const monthly = monthlyTotals.data;
 
   const loading =
-    yearlyReport.loading ||
-    unallocatedReport.loading ||
-    monthlyTotals.loading;
+    yearlyReport.loading || unallocatedReport.loading || monthlyTotals.loading;
 
   const error =
-    yearlyReport.error ||
-    unallocatedReport.error ||
-    monthlyTotals.error;
+    yearlyReport.error || unallocatedReport.error || monthlyTotals.error;
 
   const periodLabel =
-    month === "all"
-      ? `Full year ${year}`
-      : `${MONTHS[month - 1]} ${year}`;
+    month === "all" ? `Full year ${year}` : `${MONTHS[month - 1]} ${year}`;
 
   // Monthly values come from monthly-totals.
   // Full-year values come from unallocated-yearly.
   const receivedUsd =
     month === "all"
-      ? unallocated?.transaction_income_usd.total ?? 0
-      : monthly?.transaction_income_usd.total ?? 0;
+      ? (unallocated?.transaction_income_usd.total ?? 0)
+      : (monthly?.transaction_income_usd.total ?? 0);
 
   const allocatedUsd =
     month === "all"
-      ? unallocated?.exchanged_to_af_usd.total ?? 0
-      : monthly?.exchanged_to_af_usd.total ?? 0;
+      ? (unallocated?.exchanged_to_af_usd.total ?? 0)
+      : (monthly?.exchanged_to_af_usd.total ?? 0);
 
   const unallocatedUsd = unallocated?.unallocated_usd ?? 0;
 
@@ -79,8 +86,7 @@ const HomePage = () => {
   const totalExpenses = report?.total_expense.total ?? 0;
   const otherExpenses =
     report?.total_expense.breakdown.other_expenses.total ?? 0;
-  const payrollExpenses =
-    report?.total_expense.breakdown.payrolls.total ?? 0;
+  const payrollExpenses = report?.total_expense.breakdown.payrolls.total ?? 0;
 
   const maxChartValue = Math.max(receivedUsd, allocatedUsd, 1);
 
@@ -103,7 +109,7 @@ const HomePage = () => {
       accent: "border-t-blue-600",
     },
     {
-      title: "Exchanged to AFN (USD)",
+      title: "Allocated amount (USD)",
       value: formatCurrency(allocatedUsd, "USD"),
       subtitle:
         month === "all"
@@ -115,7 +121,7 @@ const HomePage = () => {
       accent: "border-t-indigo-600",
     },
     {
-      title: "USD Remaining",
+      title: "Unallocated Amount",
       value: formatCurrency(unallocatedUsd, "USD"),
       subtitle: `Remaining balance for the full year ${year}`,
       period: "Yearly",
@@ -140,21 +146,22 @@ const HomePage = () => {
       <section className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-950 via-blue-800 to-blue-600 p-6 text-white shadow-lg sm:p-8">
         <div className="pointer-events-none absolute -right-12 -top-24 h-64 w-64 rounded-full border-[35px] border-white/5" />
         <div className="pointer-events-none absolute -bottom-24 right-40 h-48 w-48 rounded-full bg-blue-400/10 blur-2xl" />
-        <div className="relative flex flex-col justify-between gap-6 md:flex-row md:items-center"><div>
-          <div className="mb-3 flex items-center gap-2 text-sm font-medium text-blue-100">
-            <FaChartBar />
-            FIRST RATE AFGHANISTAN
+        <div className="relative flex flex-col justify-between gap-6 md:flex-row md:items-center">
+          <div>
+            <div className="mb-3 flex items-center gap-2 text-sm font-medium text-blue-100">
+              <FaChartBar />
+              FIRST RATE AFGHANISTAN
+            </div>
+
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Financial Overview
+            </h1>
+
+            <p className="mt-2 max-w-xl text-sm leading-6 text-blue-100">
+              Monitor income, currency allocation, and business expenses from
+              one central dashboard.
+            </p>
           </div>
-
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            Financial Overview
-          </h1>
-
-          <p className="mt-2 max-w-xl text-sm leading-6 text-blue-100">
-            Monitor income, currency allocation, and business expenses
-            from one central dashboard.
-          </p>
-        </div>
 
           <div className="flex items-center gap-3 self-start rounded-xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-sm md:self-center">
             <div className="rounded-lg bg-white/15 p-2.5">
@@ -356,7 +363,7 @@ const HomePage = () => {
               <div className="flex items-center gap-2">
                 <span className="h-3 w-3 rounded-sm bg-emerald-500" />
                 <span className="text-sm font-medium text-slate-600">
-                  USD Exchanged to AFN
+                  USD Allocated
                 </span>
               </div>
 
@@ -385,8 +392,8 @@ const HomePage = () => {
                 USD Remaining
               </p>
               <p className="mt-1 text-sm text-slate-600">
-                {formatCurrency(unallocatedUsd, "USD")} remains for the full year {year},
-                according to the yearly report.
+                {formatCurrency(unallocatedUsd, "USD")} remains for the full
+                year {year}, according to the yearly report.
               </p>
             </div>
           </div>
@@ -399,9 +406,7 @@ const HomePage = () => {
               <h2 className="text-lg font-bold text-slate-900">
                 Expense Breakdown
               </h2>
-              <p className="mt-1 text-sm text-slate-500">
-                {periodLabel}
-              </p>
+              <p className="mt-1 text-sm text-slate-500">{periodLabel}</p>
             </div>
 
             <div className="rounded-xl bg-amber-50 p-3 text-amber-600">
@@ -451,7 +456,8 @@ const HomePage = () => {
                 />
               </div>
               <p className="mt-1 text-xs text-slate-400">
-                {report?.total_expense.breakdown.other_expenses.count ?? 0} records
+                {report?.total_expense.breakdown.other_expenses.count ?? 0}{" "}
+                records
               </p>
             </div>
 
@@ -525,7 +531,7 @@ const HomePage = () => {
               </div>
               <div>
                 <p className="text-sm font-semibold text-slate-800">
-                  Exchanged Income
+                  Allocated amount in AFN
                 </p>
                 <p className="mt-1 text-xs text-slate-500">
                   {report?.exchange_income.count ?? 0} exchanges · AFN
