@@ -1,4 +1,5 @@
-import { useState } from "react";
+import Loader from "../../components/common/Loader";
+import { useState, useEffect } from "react";
 import {
   FaWallet,
   FaExchangeAlt,
@@ -11,26 +12,12 @@ import {
   FaSyncAlt,
   FaFileInvoiceDollar,
 } from "react-icons/fa";
-
-import {
-  getHomeYearlyReport,
-  getHomeUnallocatedYearly,
-  getHomeMonthlyTotals,
-} from "../../api/homeApi";
+import { getHomeYearlyReport, getHomeUnallocatedYearly, getHomeMonthlyTotals, } from "../../api/homeApi";
 const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
+  "January", "February", "March", "April", "May", "June", "July", "August",
+  "September", "October", "November", "December",];
+
+
 const CURRENT_DATE = new Date();
 const CURRENT_YEAR = CURRENT_DATE.getFullYear();
 const CURRENT_MONTH = CURRENT_DATE.getMonth() + 1;
@@ -45,6 +32,9 @@ const formatCurrency = (value: number | null | undefined, currency: string) =>
   `${currency} ${formatNumber(value)}`;
 
 const HomePage = () => {
+  //////////////////////////
+  const [showLoader, setShowLoader] = useState(true);
+
   const [year, setYear] = useState(CURRENT_YEAR);
   const [month, setMonth] = useState<number | "all">("all");
 
@@ -94,7 +84,6 @@ const HomePage = () => {
   const allocatedBarHeight = (allocatedUsd / maxChartValue) * 100;
 
   const hasError = Boolean(error);
-
   const statCards = [
     {
       title: "Income Received",
@@ -139,7 +128,6 @@ const HomePage = () => {
       accent: "border-t-amber-500",
     },
   ];
-
   return (
     <div className="min-h-screen space-y-6 bg-slate-50/70 p-4 sm:p-6 lg:p-8">
       {/* Header */}
@@ -240,10 +228,7 @@ const HomePage = () => {
 
       {/* Loading and Error States */}
       {loading && (
-        <div className="flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-800">
-          <FaSyncAlt className="animate-spin" />
-          Loading financial reports...
-        </div>
+        <Loader message="Loading financial reports..." />
       )}
 
       {hasError && (
