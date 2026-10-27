@@ -5,6 +5,9 @@ import { IoManSharp } from "react-icons/io5";
 import { LiaFileContractSolid } from "react-icons/lia";
 import { GrTransaction } from "react-icons/gr";
 import { MdAddBusiness } from "react-icons/md";
+import { CiSettings } from "react-icons/ci";
+import { TbFileSettingsFilled } from "react-icons/tb";
+import { BsCashCoin } from "react-icons/bs";
 import {
   FaHome,
   FaMoneyBillWave,
@@ -81,9 +84,8 @@ const Sidebar = () => {
         {
           path: "/Exchange-to-AfN",
           label: "Monthly Invoice Allocation",
-          icon: <FaFileInvoiceDollar />,
+          icon: <BsCashCoin />,
         },
-
       ],
     },
     {
@@ -100,6 +102,18 @@ const Sidebar = () => {
           path: "/other-expenses",
           label: "Other Expense",
           icon: <TbReceipt />,
+        },
+      ],
+    },
+    {
+      label: "Settings",
+      icon: <CiSettings />,
+      menuId: "",
+      subItems: [
+        {
+          path: "/settings-tax",
+          label: "Tax",
+          icon: <TbFileSettingsFilled />,
         },
       ],
     },
@@ -131,9 +145,10 @@ const Sidebar = () => {
                     to={item.path}
                     end={item.path === "/"}
                     className={({ isActive }) =>
-                      `flex items-center rounded-2xl px-4 py-3 transition-all duration-200 ${isActive
-                        ? "bg-white font-semibold text-blue-firstRate shadow-md"
-                        : "text-indigo-100 hover:bg-white/10"
+                      `flex items-center rounded-2xl px-4 py-3 transition-all duration-200 ${
+                        isActive
+                          ? "bg-white font-semibold text-blue-firstRate shadow-md"
+                          : "text-indigo-100 hover:bg-white/10"
                       }`
                     }
                   >
@@ -145,7 +160,8 @@ const Sidebar = () => {
             }
 
             const isExpanded = expandedMenu === item.menuId;
-            const isParentActive = isSubItemActive(item.subItems ?? []) || isExpanded;
+            const isParentActive =
+              isSubItemActive(item.subItems ?? []) || isExpanded;
 
             return (
               <li key={item.menuId}>
@@ -153,10 +169,11 @@ const Sidebar = () => {
                   type="button"
                   onClick={() => toggleMenu(item.menuId ?? "")}
                   aria-expanded={isExpanded}
-                  className={`flex w-full items-center rounded-2xl px-4 py-3 transition-all duration-200 ${isParentActive
-                    ? "bg-white/20 font-semibold text-white"
-                    : "text-indigo-100 hover:bg-white/10"
-                    }`}
+                  className={`flex w-full items-center rounded-2xl px-4 py-3 transition-all duration-200 ${
+                    isParentActive
+                      ? "bg-white/20 font-semibold text-white"
+                      : "text-indigo-100 hover:bg-white/10"
+                  }`}
                 >
                   <span className="w-8 text-lg">{item.icon}</span>
                   <span className="ml-2 flex-1 text-left text-sm">
@@ -174,9 +191,10 @@ const Sidebar = () => {
                         <NavLink
                           to={sub.path}
                           className={({ isActive }) =>
-                            `flex items-center rounded-xl px-4 py-2 transition-all duration-200 ${isActive
-                              ? "bg-white font-semibold text-blue-firstRate shadow-sm"
-                              : "text-indigo-200 hover:bg-white/10"
+                            `flex items-center rounded-xl px-4 py-2 transition-all duration-200 ${
+                              isActive
+                                ? "bg-white font-semibold text-blue-firstRate shadow-sm"
+                                : "text-indigo-200 hover:bg-white/10"
                             }`
                           }
                         >
