@@ -8,7 +8,7 @@ import {
 } from "../../api/cashBalanceExchangeApi";
 
 // ✅ Import the API to get the exact unallocated amount
-import { useUnallocatedYearly } from "../../api/homeApi";
+import { useUnallocatedYearly } from "../..//api/reportApi";
 
 import ExchangeFormModal from "../../components/income/ExchangeFormModal";
 import { formatNumber } from "../../utils/formatNumber";
