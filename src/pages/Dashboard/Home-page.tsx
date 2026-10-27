@@ -1,16 +1,38 @@
 import Loader from "../../components/common/Loader";
 import { useState } from "react";
 import {
-  getCurrentCashBalance, getHomeYearlyReport, getHomeUnallocatedYearly, getHomeMonthlyTotals,
+  getCurrentCashBalance,
+  getHomeYearlyReport,
+  getHomeUnallocatedYearly,
+  getHomeMonthlyTotals,
 } from "../../api/homeApi";
 import {
-  FaWallet, FaExchangeAlt, FaMoneyBillWave, FaReceipt, FaCalendarAlt, FaChartBar,
-  FaArrowDown, FaArrowUp, FaSyncAlt, FaFileInvoiceDollar,
+  FaWallet,
+  FaExchangeAlt,
+  FaMoneyBillWave,
+  FaReceipt,
+  FaCalendarAlt,
+  FaChartBar,
+  FaArrowDown,
+  FaArrowUp,
+  FaSyncAlt,
+  FaFileInvoiceDollar,
 } from "react-icons/fa";
 
 const MONTHS = [
-  "January", "February", "March", "April", "May", "June", "July", "August",
-  "September", "October", "November", "December",];
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
 const CURRENT_DATE = new Date();
 const CURRENT_YEAR = CURRENT_DATE.getFullYear();
@@ -22,10 +44,8 @@ const formatNumber = (value: number | null | undefined) =>
     maximumFractionDigits: 2,
   });
 
-const formatCurrency = (
-  value: number | null | undefined,
-  currency: string,
-) => `${currency} ${formatNumber(value)}`;
+const formatCurrency = (value: number | null | undefined, currency: string) =>
+  `${currency} ${formatNumber(value)}`;
 
 const HomePage = () => {
   const [showLoader, setShowLoader] = useState(true);
@@ -62,8 +82,6 @@ const HomePage = () => {
   const periodLabel =
     month === "all" ? `Full year ${year}` : `${MONTHS[month - 1]} ${year}`;
 
-  // Monthly values come from monthly-totals.
-  // Full-year values come from unallocated-yearly.
   const receivedUsd =
     month === "all"
       ? (unallocated?.transaction_income_usd.total ?? 0)
@@ -197,16 +215,18 @@ const HomePage = () => {
           </div>
 
           <div className="flex items-center gap-3 border-t border-emerald-200 pt-4 sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0">
-            <FaCalendarAlt className="text-lg text-emerald-700" />
-
-            <div>
-              <p className="text-xs font-medium text-slate-500">
-                Last balance date
-              </p>
-              <p className="mt-1 text-sm font-semibold text-slate-800">
-                {cashBalance.data?.date ?? "Date unavailable"}
-              </p>
-            </div>
+            {/* ✅ REPLACED CALENDAR ICON WITH REFRESH BUTTON */}
+            <button
+              type="button"
+              onClick={() => cashBalance.refetch()}
+              disabled={cashBalance.loading}
+              className="rounded-full p-1.5 text-emerald-700 transition hover:bg-emerald-100 hover:text-emerald-800 disabled:opacity-50"
+              title="Refresh Cash Balance"
+            >
+              <FaSyncAlt
+                className={`text-lg ${cashBalance.loading ? "animate-spin" : ""}`}
+              />
+            </button>
 
             <span className="ml-2 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-800">
               <span className="h-2 w-2 rounded-full bg-emerald-600" />
