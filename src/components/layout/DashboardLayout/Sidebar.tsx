@@ -112,7 +112,7 @@ const Sidebar = () => {
       subItems: [
         {
           path: "/settings-tax",
-          label: "Tax",
+          label: "Tax configuration",
           icon: <TbFileSettingsFilled />,
         },
       ],
