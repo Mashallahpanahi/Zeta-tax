@@ -1,10 +1,8 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-
 import DashboardLayout from "../components/layout/DashboardLayout/DashboardLayout";
 import HomePage from "../pages/Dashboard/Home-page";
 import EmployeesPage from "../pages/Employees/Register";
 import ContractPage from "../pages/Employees/contract";
-
 import IncomeTransactionPage from "../pages/Income/Income-transaction";
 import EmployeeRegisterHistory from "../pages/Employees/Employee-register-history";
 import EmployeeContractHistory from "../pages/Employees/EmployeeContractHistory";
@@ -12,6 +10,7 @@ import ExpenseCategoryPage from "../pages/Expenses/ExpenseCategory";
 import OtherExpensesPage from "../pages/Expenses/OtherExpenses";
 import ExchangeToAFNPage from "../pages/Income/Exchange-to-AfN";
 import TaxPage from "../pages/Settings/tax/tax-Page";
+import TaxReportsPage from "../pages/TaxReports/TaxReports";
 
 const AppRoutes = () => (
   <BrowserRouter>
@@ -29,8 +28,8 @@ const AppRoutes = () => (
         <Route path="expense-categories" element={<ExpenseCategoryPage />} />
         <Route path="other-expenses" element={<OtherExpensesPage />} />
         <Route path="exchange-to-afn" element={< ExchangeToAFNPage />} />
-
         <Route path="settings-tax" element={<TaxPage />} />
+        <Route path="tax-reports" element={<TaxReportsPage />} />
       </Route>
     </Routes>
   </BrowserRouter>
