@@ -7,7 +7,7 @@ import { formatNumber } from "../../utils/formatNumber";
 
 interface Props {
   maxUnallocatedUSD: number;
-  onSuccess: () => void; // ✅ Changed from onSave to onSuccess
+  onSuccess: () => void;
   onClose: () => void;
 }
 
@@ -16,29 +16,58 @@ export default function ExchangeFormModal({
   onSuccess,
   onClose,
 }: Props) {
+  // ✅ Helper to get local YYYY-MM-DD
+  const getTodayLocal = () => {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  };
+
   const [amountInput, setAmountInput] = useState("");
   const [rateInput, setRateInput] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-
+  const [date, setDate] = useState(getTodayLocal());
   const [localSuccessMessage, setLocalSuccessMessage] = useState("");
 
-  // ✅ Use the API hook directly inside the modal
   const { create, loading: saving, error } = createCashBalanceExchange();
-
-  // ✅ Fetch Latest Balance for Remainder Logic
   const { data: latestBalance } = getLatestBalance();
 
-  // ✅ Date Restrictions (Current Month Only)
+  // Current Date info
   const today = new Date();
   const currentYear = today.getFullYear();
   const currentMonth = today.getMonth();
 
-  const minDate = new Date(currentYear, currentMonth, 1)
-    .toISOString()
-    .split("T")[0];
-  const maxDate = new Date(currentYear, currentMonth + 1, 0)
-    .toISOString()
-    .split("T")[0];
+  const formatLocalDate = (d: Date) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  };
+
+  const minDate = formatLocalDate(new Date(currentYear, currentMonth, 1));
+  const maxDate = formatLocalDate(new Date(currentYear, currentMonth + 1, 0));
+
+  // ✅ Strict Date Validation (Blocks typing different months)
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newDate = e.target.value;
+    if (!newDate) {
+      setDate(newDate);
+      return;
+    }
+
+    // Create a string for the current month (e.g., "2026-10")
+    const currentMonthString = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}`;
+
+    // If the typed date starts with the current year and month, allow it
+    if (newDate.startsWith(currentMonthString)) {
+      setDate(newDate);
+    } else {
+      // If they type a different month (like 11 or 09), ignore the change
+      // and reset the input back to the valid state
+      e.target.value = date;
+    }
+  };
 
   // Calculations
   const amountUSD = Number(amountInput);
@@ -55,7 +84,7 @@ export default function ExchangeFormModal({
 
   const amountAF = validAmount && validRate ? amountUSD * rate : 0;
 
-  // ✅ Remainder Logic (Same Month vs New Month)
+  // Remainder Logic (Same Month vs New Month)
   let isNewMonth = false;
   let previousRemainder = 0;
 
@@ -86,7 +115,6 @@ export default function ExchangeFormModal({
 
     if (!validAmount || !validRate) return;
 
-    // ✅ EXACT PAYLOAD MATCHING SWAGGER
     const payload = {
       ex_rate: rate,
       amount_usd: amountUSD,
@@ -98,10 +126,7 @@ export default function ExchangeFormModal({
     const success = await create(payload);
 
     if (success) {
-      // Show the backend success message inside the popup
       setLocalSuccessMessage("Exchange saved successfully!");
-
-      // Wait 1.5 seconds so the user can read the message, then close & refresh
       setTimeout(() => {
         onSuccess();
       }, 1500);
@@ -125,21 +150,18 @@ export default function ExchangeFormModal({
           </button>
         </div>
 
-        {/* ✅ Show Backend Success Message */}
         {localSuccessMessage && (
           <div className="mb-5 rounded-lg border border-green-200 bg-green-50 p-4 text-sm font-semibold text-green-700">
             {localSuccessMessage}
           </div>
         )}
 
-        {/* ✅ Show Backend Error Message */}
         {error && (
           <div className="mb-5 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
             {error}
           </div>
         )}
 
-        {/* Alert if New Month */}
         {isNewMonth && validAmount && validRate && (
           <div className="mb-5 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700">
             <strong>New Month Detected!</strong> The system has automatically
@@ -183,10 +205,13 @@ export default function ExchangeFormModal({
               value={date}
               min={minDate}
               max={maxDate}
-              onChange={(e) => setDate(e.target.value)}
+              onChange={handleDateChange} // ✅ Using the new strict handler
               required
               className="w-full rounded-md border border-gray-300 p-2.5 text-gray-900 focus:border-blue-firstRate outline-none"
             />
+            <p className="mt-1 text-xs text-gray-500">
+              You can only pick a date within the current month.
+            </p>
           </div>
 
           <div>
