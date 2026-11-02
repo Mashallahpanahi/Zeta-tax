@@ -331,10 +331,9 @@ export default function PayrollPage() {
               )}
             </tbody>
           </table>
-
           {/* Footer Bulk Actions */}
           <div className="p-4 border-t border-gray-200 bg-gray-50 flex flex-wrap gap-3">
-            <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+            <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-blue-firstRate transition-colors duration-200 hover:bg-blue-firstRate hover:text-white hover:border-blue-firstRate">
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -350,7 +349,8 @@ export default function PayrollPage() {
               </svg>
               Print selected slips
             </button>
-            <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+
+            <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-blue-firstRate transition-colors duration-200 hover:bg-blue-firstRate hover:text-white hover:border-blue-firstRate">
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -365,6 +365,10 @@ export default function PayrollPage() {
                 ></path>
               </svg>
               Print all slips
+            </button>
+
+            <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-blue-firstRate transition-colors duration-200 hover:bg-blue-firstRate hover:text-white hover:border-blue-firstRate">
+              History of all payments
             </button>
           </div>
         </div>
