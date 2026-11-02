@@ -15,6 +15,18 @@ interface Props {
     onEdit: (expense: OtherExpense) => void;
 }
 
+function isCurrentMonth(date?: string): boolean {
+    if (!date) return false;
+
+    const [year, month] = date.slice(0, 10).split("-").map(Number);
+    const today = new Date();
+
+    return (
+        year === today.getFullYear() &&
+        month === today.getMonth() + 1
+    );
+}
+
 export default function OtherExpenseHistory({
     expenses,
     categories,
@@ -39,8 +51,7 @@ export default function OtherExpenseHistory({
                     Expense History
                 </h1>
                 <p className="mt-1 text-sm text-gray-500">
-                    View and edit your saved expenses.
-                </p>
+                    View saved expenses. Only expenses from the current month can be edited.                </p>
             </div>
 
             {loading && (
@@ -93,7 +104,7 @@ export default function OtherExpenseHistory({
                             <tbody>
                                 {expenses.map((expense, index) => {
                                     const id = expense.id ?? expense.expense_id;
-
+                                    const canEdit = isCurrentMonth(expense.expense_date);
                                     return (
                                         <tr
                                             key={id ?? index}
@@ -124,7 +135,16 @@ export default function OtherExpenseHistory({
                                                 <button
                                                     type="button"
                                                     onClick={() => onEdit(expense)}
-                                                    className="rounded-lg bg-yellow-500 px-3 py-1.5 text-sm text-white hover:bg-yellow-600"
+                                                    disabled={!canEdit}
+                                                    title={
+                                                        canEdit
+                                                            ? "Edit expense"
+                                                            : "Only current-month expenses can be edited"
+                                                    }
+                                                    className={`rounded-lg px-3 py-1.5 text-sm text-white transition ${canEdit
+                                                        ? "bg-yellow-500 hover:bg-yellow-600"
+                                                        : "cursor-not-allowed bg-gray-400 opacity-60"
+                                                        }`}
                                                 >
                                                     Edit
                                                 </button>

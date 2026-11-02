@@ -12,6 +12,20 @@ import ViewIncomeModal from "../../components/income/ViewIncomeModal";
 // ✅ Import the Financial Summary component
 import FinancialSummary from "../../components/report/FinancialSummary";
 
+
+function isCurrentMonth(date: IncomeTransactionType["date"]): boolean {
+  const [year, month] = String(date)
+    .slice(0, 10)
+    .split("-")
+    .map(Number);
+
+  const today = new Date();
+
+  return (
+    year === today.getFullYear() &&
+    month === today.getMonth() + 1
+  );
+}
 export default function IncomeTransactionPage() {
   // Toggle state: false = last 3 months, true = all data
   const [showAll, setShowAll] = useState(false);
@@ -132,6 +146,7 @@ export default function IncomeTransactionPage() {
             {transactionList.length > 0 ? (
               transactionList.map((transaction, index) => {
                 const id = transaction.income_id ?? transaction.id ?? index;
+                const canEdit = isCurrentMonth(transaction.date);
                 return (
                   <tr
                     key={id}
@@ -157,7 +172,16 @@ export default function IncomeTransactionPage() {
                         </button>
                         <button
                           onClick={() => setEditTransaction(transaction)}
-                          className="rounded-md bg-yellow-500 px-2 py-1 text-xs text-white transition hover:bg-yellow-600"
+                          disabled={!canEdit}
+                          title={
+                            canEdit
+                              ? "Edit transaction"
+                              : "You can only edit transactions from the current month"
+                          }
+                          className={`rounded-md px-2 py-1 text-xs text-white transition ${canEdit
+                              ? "bg-yellow-500 hover:bg-yellow-600"
+                              : "cursor-not-allowed bg-gray-400 opacity-60"
+                            }`}
                         >
                           Edit
                         </button>

@@ -137,7 +137,8 @@ export default function ExchangeToAFNPage() {
             Monthly Invoice Allocation
           </h1>
           <p className="mt-1 text-sm text-gray-500">
-            Track income exchanges, expenses, and remaining cash.
+            Review your monthly currency allocations, exchange rates, and the AFN
+            received from each USD exchange.
           </p>
         </div>
 
@@ -146,7 +147,7 @@ export default function ExchangeToAFNPage() {
           onClick={() => setIsModalOpen(true)}
           className="rounded-lg bg-blue-firstRate px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
         >
-          Allocte new amount +
+          Allocate new amount +
         </button>
       </div>
 
@@ -263,11 +264,11 @@ export default function ExchangeToAFNPage() {
             {selectedMonth === "all"
               ? "Grand Total — All Displayed"
               : `Grand Total — ${new Date(
-                  `${selectedMonth}-01T00:00:00`,
-                ).toLocaleDateString("en-US", {
-                  month: "long",
-                  year: "numeric",
-                })}`}
+                `${selectedMonth}-01T00:00:00`,
+              ).toLocaleDateString("en-US", {
+                month: "long",
+                year: "numeric",
+              })}`}
           </span>
 
           <div className="flex flex-wrap justify-end gap-x-6 gap-y-2 text-sm">
