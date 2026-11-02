@@ -35,11 +35,8 @@ export default function PayrollPage() {
 
   // ✅ Global Exchange Rate State
   const [globalExRate, setGlobalExRate] = useState<string>("70");
-
-  // ✅ Single global key for localStorage
   const storageKey = "global_exchange_rate";
 
-  // ✅ Load from local storage only once when the page loads
   useEffect(() => {
     const storedRate = localStorage.getItem(storageKey);
     if (storedRate) {
@@ -47,7 +44,6 @@ export default function PayrollPage() {
     }
   }, []);
 
-  // ✅ Save to local storage whenever the user types
   const handleRateChange = (value: string) => {
     setGlobalExRate(value);
     localStorage.setItem(storageKey, value);
@@ -60,12 +56,15 @@ export default function PayrollPage() {
   const {
     data: contracts,
     loading: loadingContracts,
+    error: contractsError,
     refetch: refetchContracts,
   } = getActiveContracts(month, year);
 
+  // ✅ Extract the error from the payroll API
   const {
     data: payrolls,
     loading: loadingPayrolls,
+    error: payrollsError,
     refetch: refetchPayrolls,
   } = getMonthlyPayrolls(month, year);
 
@@ -173,7 +172,6 @@ export default function PayrollPage() {
           </p>
         </div>
 
-        {/* ✅ Global Exchange Rate Input */}
         <div className="flex items-center gap-2 bg-white px-3 py-1.5 border border-gray-300 rounded-lg shadow-sm">
           <label
             htmlFor="globalRate"
@@ -274,8 +272,18 @@ export default function PayrollPage() {
                         ? formatDate(payroll.date)
                         : formatDate(paymentDate)}
                     </td>
+
+                    {/* ✅ Updated Status Column Logic */}
                     <td className="p-4">
-                      {isPaid ? (
+                      {payrollsError ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">
+                          Network error
+                        </span>
+                      ) : !payroll ? (
+                        <span className="text-sm text-gray-400 font-medium">
+                          null
+                        </span>
+                      ) : isPaid ? (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-semibold">
                           <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>{" "}
                           Paid
@@ -287,8 +295,16 @@ export default function PayrollPage() {
                         </span>
                       )}
                     </td>
+
                     <td className="p-4">
-                      {isPaid ? (
+                      {payrollsError ? (
+                        <button
+                          disabled
+                          className="px-4 py-2 bg-gray-100 text-gray-400 rounded-lg text-sm font-medium cursor-not-allowed"
+                        >
+                          Unavailable
+                        </button>
+                      ) : isPaid ? (
                         <button className="px-4 py-2 bg-gray-100 text-gray-500 rounded-lg text-sm font-medium cursor-not-allowed">
                           Paid
                         </button>

@@ -48,12 +48,12 @@ export type CreatePayrollType = {
 // ✅ UPDATED: Now accepts month and year to hit the new route
 export const getActiveContracts = (month: number, year: number) =>
   useFetch<EmployeeContract[]>(
-    `${BASE_URL}/employee-contract/active-by-month?month=${month}&year=${year}`
+    `${BASE_URL}/employee-contract/active-by-month?month=${month}&year=${year}`,
   );
 
 export const getMonthlyPayrolls = (month: number, year: number) =>
   useFetch<PayrollType[]>(
-    `${BASE_URL}/employee-payroll/monthly?month=${month}&year=${year}`
+    `${BASE_URL}/employee-payroll/monthly?month=${month}&year=${year}`,
   );
 
 export const createPayroll = () =>
