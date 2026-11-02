@@ -46,7 +46,7 @@ export default function OtherExpensesPage() {
   useEffect(() => {
     if (!message) return;
 
-    const timer = window.setTimeout(() => setMessage(""), 12000);
+    const timer = window.setTimeout(() => setMessage(""), 6000);
     return () => window.clearTimeout(timer);
   }, [message]);
 
@@ -92,6 +92,7 @@ export default function OtherExpensesPage() {
       });
       setFormError("");
       setMessage("Expense created successfully.");
+      setShowHistory(true);
     }
   }
 
@@ -115,25 +116,13 @@ export default function OtherExpensesPage() {
           {showHistory ? "Back to Add Expense" : "View Expense History"}
         </button>
       </div>
-
-      {message && (
-        <p
-          role="status"
-          className="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700"
-        >
-          {message}
-        </p>
-      )}
-
       {!showHistory ? (
-        <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
-          <div className="mb-4">
-            <h1 className="text-lg font-bold text-gray-900">Add New Expense</h1>
-            <p className="mt-1 text-xs text-gray-500">
-              Enter the details of your business expense.
-            </p>
-          </div>
-
+        <section className="relative rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">          <div className="mb-4">
+          <h1 className="text-lg font-bold text-gray-900">Add New Expense</h1>
+          <p className="mt-1 text-xs text-gray-500">
+            Enter the details of your business expense.
+          </p>
+        </div>
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
               <label
@@ -285,6 +274,25 @@ export default function OtherExpensesPage() {
               </button>
             </div>
           </form>
+          {message && (
+            <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
+              <div
+                role="status"
+                className="rounded-xl border border-green-200 bg-white px-8 py-5 text-center shadow-xl"
+              >
+                <div className="mb-2 flex justify-center">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-600">
+                    ✓
+                  </span>
+                </div>
+
+                <p className="text-base font-semibold text-green-700">
+                  {message}
+                </p>
+              </div>
+            </div>
+          )}
+
         </section>
       ) : (
         <OtherExpenseHistory
