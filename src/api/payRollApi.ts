@@ -3,7 +3,6 @@ import { useCreate } from "../hooks/useCreate";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-// ---------- Types ----------
 export interface ContractEmployee {
   registration_id: string;
   first_name: string;
@@ -46,9 +45,11 @@ export type CreatePayrollType = {
   pay_status: boolean;
 };
 
-// ---------- Hooks ----------
-export const getActiveContracts = () =>
-  useFetch<EmployeeContract[]>(`${BASE_URL}/employee-contract/active`);
+// ✅ UPDATED: Now accepts month and year to hit the new route
+export const getActiveContracts = (month: number, year: number) =>
+  useFetch<EmployeeContract[]>(
+    `${BASE_URL}/employee-contract/active-by-month?month=${month}&year=${year}`
+  );
 
 export const getMonthlyPayrolls = (month: number, year: number) =>
   useFetch<PayrollType[]>(

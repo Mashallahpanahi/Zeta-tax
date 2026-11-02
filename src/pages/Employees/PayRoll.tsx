@@ -5,8 +5,8 @@ import {
   type EmployeeContract,
 } from "../../api/payRollApi";
 import PostPayrollModal from "../../components/payroll/PostPayrollModal";
-// ✅ Import the tax loader
 import { loadTaxRates } from "../../utils/calculateTax";
+import { formatNumber } from "../../utils/formatNumber"; // ✅ Imported formatNumber
 
 const MONTHS = [
   "January",
@@ -32,7 +32,6 @@ export default function PayrollPage() {
     null,
   );
 
-  // ✅ Load tax rates once when the page loads
   useEffect(() => {
     loadTaxRates();
   }, []);
@@ -41,7 +40,8 @@ export default function PayrollPage() {
     data: contracts,
     loading: loadingContracts,
     refetch: refetchContracts,
-  } = getActiveContracts();
+  } = getActiveContracts(month, year);
+
   const {
     data: payrolls,
     loading: loadingPayrolls,
@@ -110,7 +110,7 @@ export default function PayrollPage() {
             Employee salary status
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Review paid and unpaid salaries for the current month.
+            Review paid and unpaid salaries for the selected month.
           </p>
         </div>
 
@@ -147,7 +147,7 @@ export default function PayrollPage() {
       {/* Summary Bar */}
       <div className="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-200">
         <div>
-          <p className="text-xs text-gray-500 font-medium">Current month</p>
+          <p className="text-xs text-gray-500 font-medium">Selected Period</p>
           <p className="text-lg font-bold text-gray-900">
             {MONTHS[month - 1]} {year}
           </p>
@@ -186,6 +186,10 @@ export default function PayrollPage() {
                 <th className="p-4 text-sm font-semibold text-gray-700">
                   Full name
                 </th>
+                {/* ✅ NEW COLUMN HEADER */}
+                <th className="p-4 text-sm font-semibold text-gray-700">
+                  Base Salary
+                </th>
                 <th className="p-4 text-sm font-semibold text-gray-700">
                   Date
                 </th>
@@ -200,6 +204,8 @@ export default function PayrollPage() {
             <tbody className="divide-y divide-gray-100">
               {rows.map(({ contract, payroll, isPaid }) => {
                 const fullName = `${contract.employee?.first_name || ""} ${contract.employee?.last_name || ""}`;
+                const baseSalary = Number(contract.base_salary || 0);
+                const currency = contract.currency || "USD";
 
                 return (
                   <tr
@@ -221,6 +227,12 @@ export default function PayrollPage() {
                     <td className="p-4 font-medium text-gray-900">
                       {fullName}
                     </td>
+
+                    {/* ✅ NEW COLUMN DATA */}
+                    <td className="p-4 text-sm font-semibold text-gray-800">
+                      {currency} {formatNumber(baseSalary)}
+                    </td>
+
                     <td className="p-4 text-sm text-gray-600">
                       {payroll
                         ? formatDate(payroll.date)
@@ -271,8 +283,15 @@ export default function PayrollPage() {
               })}
               {rows.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-gray-500">
-                    No active employees found.
+                  {/* ✅ Changed colSpan from 5 to 6 */}
+                  <td colSpan={6} className="p-10 text-center text-gray-500">
+                    <p className="text-lg font-medium text-gray-600 mb-1">
+                      No contracts in this period of time
+                    </p>
+                    <p className="text-sm">
+                      There are no active employee contracts for{" "}
+                      {MONTHS[month - 1]} {year}.
+                    </p>
                   </td>
                 </tr>
               )}
