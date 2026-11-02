@@ -7,6 +7,7 @@ import {
 import PostPayrollModal from "../../components/payroll/PostPayrollModal";
 import { loadTaxRates } from "../../utils/calculateTax";
 import { formatNumber } from "../../utils/formatNumber";
+import { Link } from "react-router-dom";
 
 const MONTHS = [
   "January",
@@ -366,10 +367,11 @@ export default function PayrollPage() {
               </svg>
               Print all slips
             </button>
-
-            <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-blue-firstRate transition-colors duration-200 hover:bg-blue-firstRate hover:text-white hover:border-blue-firstRate">
-              History of all payments
-            </button>
+            <Link to="/payroll-history">
+              <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-blue-firstRate transition-colors duration-200 hover:bg-blue-firstRate hover:text-white hover:border-blue-firstRate">
+                History of all payments
+              </button>
+            </Link>
           </div>
         </div>
       )}
