@@ -20,17 +20,19 @@ export default function PostPayrollModal({
 }: Props) {
   const { create, loading: saving, error } = createPayroll();
 
-  // ✅ 1. Make base salary a state variable so it can be edited
   const [baseSalaryInput, setBaseSalaryInput] = useState<string>("0");
   const [overtime, setOvertime] = useState<string>("0");
   const [exRate, setExRate] = useState<string>("70");
 
-  // ✅ 2. Sync the state when the contract changes or modal opens
+  // ✅ Sync the state when the contract changes or modal opens
   useEffect(() => {
     if (isOpen && contract) {
       setBaseSalaryInput(String(contract.base_salary || 0));
       setOvertime("0");
-      setExRate("70");
+
+      // ✅ Load the exchange rate from localStorage
+      const storedRate = localStorage.getItem("global_exchange_rate");
+      setExRate(storedRate || "70");
     }
   }, [isOpen, contract]);
 
@@ -42,7 +44,7 @@ export default function PostPayrollModal({
   const selectedMonthStr = date.slice(0, 7);
   const isCurrentMonth = currentMonthStr === selectedMonthStr;
 
-  // ✅ 3. Use the editable state instead of the fixed contract value
+  // Use the editable state
   const baseSalary = Number(baseSalaryInput) || 0;
   const bonus = Number(overtime) || 0;
   const rateNum = Number(exRate) || 0;
@@ -125,7 +127,6 @@ export default function PostPayrollModal({
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* ✅ 4. Replaced the read-only div with an editable input */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Base Salary (USD)
@@ -166,6 +167,9 @@ export default function PostPayrollModal({
               onChange={(e) => setExRate(e.target.value)}
               className="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:border-blue-firstRate"
             />
+            <p className="text-xs text-gray-500 mt-1">
+              You can adjust this rate specifically for this employee.
+            </p>
           </div>
 
           <div className="bg-blue-50 p-4 rounded-lg space-y-2 border border-blue-100 text-sm">

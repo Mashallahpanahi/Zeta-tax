@@ -6,7 +6,7 @@ import {
 } from "../../api/payRollApi";
 import PostPayrollModal from "../../components/payroll/PostPayrollModal";
 import { loadTaxRates } from "../../utils/calculateTax";
-import { formatNumber } from "../../utils/formatNumber"; // ✅ Imported formatNumber
+import { formatNumber } from "../../utils/formatNumber";
 
 const MONTHS = [
   "January",
@@ -32,6 +32,26 @@ export default function PayrollPage() {
     null,
   );
 
+  // ✅ Global Exchange Rate State
+  const [globalExRate, setGlobalExRate] = useState<string>("70");
+
+  // ✅ Single global key for localStorage
+  const storageKey = "global_exchange_rate";
+
+  // ✅ Load from local storage only once when the page loads
+  useEffect(() => {
+    const storedRate = localStorage.getItem(storageKey);
+    if (storedRate) {
+      setGlobalExRate(storedRate);
+    }
+  }, []);
+
+  // ✅ Save to local storage whenever the user types
+  const handleRateChange = (value: string) => {
+    setGlobalExRate(value);
+    localStorage.setItem(storageKey, value);
+  };
+
   useEffect(() => {
     loadTaxRates();
   }, []);
@@ -49,7 +69,6 @@ export default function PayrollPage() {
   } = getMonthlyPayrolls(month, year);
 
   const loading = loadingContracts || loadingPayrolls;
-
   const paymentDate = `${year}-${String(month).padStart(2, "0")}-01`;
 
   const rows = useMemo(() => {
@@ -144,14 +163,34 @@ export default function PayrollPage() {
         </div>
       </div>
 
-      {/* Summary Bar */}
-      <div className="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-200">
+      {/* Summary Bar with Global Exchange Rate */}
+      <div className="flex flex-col sm:flex-row items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-200 gap-4">
         <div>
           <p className="text-xs text-gray-500 font-medium">Selected Period</p>
           <p className="text-lg font-bold text-gray-900">
             {MONTHS[month - 1]} {year}
           </p>
         </div>
+
+        {/* ✅ Global Exchange Rate Input */}
+        <div className="flex items-center gap-2 bg-white px-3 py-1.5 border border-gray-300 rounded-lg shadow-sm">
+          <label
+            htmlFor="globalRate"
+            className="text-sm font-medium text-gray-600 whitespace-nowrap"
+          >
+            Exchange Rate (AFN):
+          </label>
+          <input
+            id="globalRate"
+            type="number"
+            min="0.01"
+            step="0.01"
+            value={globalExRate}
+            onChange={(e) => handleRateChange(e.target.value)}
+            className="w-20 text-sm font-bold text-blue-firstRate outline-none bg-transparent"
+          />
+        </div>
+
         <div className="flex gap-4">
           <span className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
             <span className="h-2 w-2 rounded-full bg-green-500"></span>{" "}
@@ -186,7 +225,6 @@ export default function PayrollPage() {
                 <th className="p-4 text-sm font-semibold text-gray-700">
                   Full name
                 </th>
-                {/* ✅ NEW COLUMN HEADER */}
                 <th className="p-4 text-sm font-semibold text-gray-700">
                   Base Salary
                 </th>
@@ -227,12 +265,9 @@ export default function PayrollPage() {
                     <td className="p-4 font-medium text-gray-900">
                       {fullName}
                     </td>
-
-                    {/* ✅ NEW COLUMN DATA */}
                     <td className="p-4 text-sm font-semibold text-gray-800">
                       {currency} {formatNumber(baseSalary)}
                     </td>
-
                     <td className="p-4 text-sm text-gray-600">
                       {payroll
                         ? formatDate(payroll.date)
@@ -283,7 +318,6 @@ export default function PayrollPage() {
               })}
               {rows.length === 0 && (
                 <tr>
-                  {/* ✅ Changed colSpan from 5 to 6 */}
                   <td colSpan={6} className="p-10 text-center text-gray-500">
                     <p className="text-lg font-medium text-gray-600 mb-1">
                       No contracts in this period of time
@@ -340,6 +374,7 @@ export default function PayrollPage() {
         isOpen={!!payingContract}
         contract={payingContract}
         date={paymentDate}
+        defaultExRate={globalExRate}
         onClose={() => setPayingContract(null)}
         onSuccess={handleRefresh}
       />
