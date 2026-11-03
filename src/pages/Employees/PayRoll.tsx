@@ -6,7 +6,6 @@ import {
   type PayrollType,
 } from "../../api/payRollApi";
 import PostPayrollModal from "../../components/payroll/PostPayrollModal";
-// ✅ Import the new Print Modal
 import PrintPayrollModal from "../../components/payroll/PrintPayrollModal";
 import { loadTaxRates } from "../../utils/calculateTax";
 import { formatNumber } from "../../utils/formatNumber";
@@ -36,7 +35,6 @@ export default function PayrollPage() {
     null,
   );
 
-  // ✅ State for Print Modal
   const [printData, setPrintData] = useState<
     { contract: EmployeeContract; payroll: PayrollType }[]
   >([]);
@@ -89,6 +87,7 @@ export default function PayrollPage() {
       return {
         contract,
         payroll: payroll || null,
+        // ✅ If payroll doesn't exist, isPaid is naturally false
         isPaid: payroll ? payroll.pay_status : false,
       };
     });
@@ -148,7 +147,7 @@ export default function PayrollPage() {
 
   const handlePrintAll = () => {
     const dataToPrint = rows
-      .filter((r) => r.payroll) // Only print rows that have payroll data
+      .filter((r) => r.payroll)
       .map((r) => ({
         contract: r.contract,
         payroll: r.payroll as PayrollType,
@@ -313,14 +312,12 @@ export default function PayrollPage() {
                         ? formatDate(payroll.date)
                         : formatDate(paymentDate)}
                     </td>
+
+                    {/* ✅ Simplified Status Column */}
                     <td className="p-4">
                       {payrollsError ? (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">
                           Network error
-                        </span>
-                      ) : !payroll ? (
-                        <span className="text-sm text-gray-400 font-medium">
-                          null
                         </span>
                       ) : isPaid ? (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-semibold">
@@ -334,6 +331,8 @@ export default function PayrollPage() {
                         </span>
                       )}
                     </td>
+
+                    {/* ✅ Simplified Action Column */}
                     <td className="p-4">
                       {payrollsError ? (
                         <button
@@ -389,7 +388,6 @@ export default function PayrollPage() {
 
           {/* Footer Bulk Actions */}
           <div className="p-4 border-t border-gray-200 bg-gray-50 flex flex-wrap gap-3">
-            {/* ✅ Wired up Print Selected */}
             <button
               onClick={handlePrintSelected}
               className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-blue-firstRate transition-colors duration-200 hover:bg-blue-firstRate hover:text-white hover:border-blue-firstRate"
@@ -410,7 +408,6 @@ export default function PayrollPage() {
               Print selected slips
             </button>
 
-            {/* ✅ Wired up Print All */}
             <button
               onClick={handlePrintAll}
               className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-blue-firstRate transition-colors duration-200 hover:bg-blue-firstRate hover:text-white hover:border-blue-firstRate"
@@ -449,7 +446,6 @@ export default function PayrollPage() {
         onSuccess={handleRefresh}
       />
 
-      {/* ✅ Print Modal */}
       <PrintPayrollModal
         isOpen={printData.length > 0}
         onClose={() => setPrintData([])}
