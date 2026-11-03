@@ -3,8 +3,11 @@ import {
   getActiveContracts,
   getMonthlyPayrolls,
   type EmployeeContract,
+  type PayrollType,
 } from "../../api/payRollApi";
 import PostPayrollModal from "../../components/payroll/PostPayrollModal";
+// ✅ Import the new Print Modal
+import PrintPayrollModal from "../../components/payroll/PrintPayrollModal";
 import { loadTaxRates } from "../../utils/calculateTax";
 import { formatNumber } from "../../utils/formatNumber";
 import { Link } from "react-router-dom";
@@ -33,7 +36,11 @@ export default function PayrollPage() {
     null,
   );
 
-  // ✅ Global Exchange Rate State
+  // ✅ State for Print Modal
+  const [printData, setPrintData] = useState<
+    { contract: EmployeeContract; payroll: PayrollType }[]
+  >([]);
+
   const [globalExRate, setGlobalExRate] = useState<string>("70");
   const storageKey = "global_exchange_rate";
 
@@ -60,7 +67,6 @@ export default function PayrollPage() {
     refetch: refetchContracts,
   } = getActiveContracts(month, year);
 
-  // ✅ Extract the error from the payroll API
   const {
     data: payrolls,
     loading: loadingPayrolls,
@@ -120,6 +126,41 @@ export default function PayrollPage() {
     });
   };
 
+  // ✅ Print Handlers
+  const handlePrintSelected = () => {
+    const dataToPrint = rows
+      .filter(
+        (r) =>
+          selectedContracts.includes(String(r.contract.contract_id)) &&
+          r.payroll,
+      )
+      .map((r) => ({
+        contract: r.contract,
+        payroll: r.payroll as PayrollType,
+      }));
+
+    if (dataToPrint.length === 0) {
+      alert("Please select at least one paid employee to print.");
+      return;
+    }
+    setPrintData(dataToPrint);
+  };
+
+  const handlePrintAll = () => {
+    const dataToPrint = rows
+      .filter((r) => r.payroll) // Only print rows that have payroll data
+      .map((r) => ({
+        contract: r.contract,
+        payroll: r.payroll as PayrollType,
+      }));
+
+    if (dataToPrint.length === 0) {
+      alert("No payroll data available to print.");
+      return;
+    }
+    setPrintData(dataToPrint);
+  };
+
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
       {/* Header */}
@@ -163,7 +204,7 @@ export default function PayrollPage() {
         </div>
       </div>
 
-      {/* Summary Bar with Global Exchange Rate */}
+      {/* Summary Bar */}
       <div className="flex flex-col sm:flex-row items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-200 gap-4">
         <div>
           <p className="text-xs text-gray-500 font-medium">Selected Period</p>
@@ -272,8 +313,6 @@ export default function PayrollPage() {
                         ? formatDate(payroll.date)
                         : formatDate(paymentDate)}
                     </td>
-
-                    {/* ✅ Updated Status Column Logic */}
                     <td className="p-4">
                       {payrollsError ? (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">
@@ -295,7 +334,6 @@ export default function PayrollPage() {
                         </span>
                       )}
                     </td>
-
                     <td className="p-4">
                       {payrollsError ? (
                         <button
@@ -348,9 +386,14 @@ export default function PayrollPage() {
               )}
             </tbody>
           </table>
+
           {/* Footer Bulk Actions */}
           <div className="p-4 border-t border-gray-200 bg-gray-50 flex flex-wrap gap-3">
-            <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-blue-firstRate transition-colors duration-200 hover:bg-blue-firstRate hover:text-white hover:border-blue-firstRate">
+            {/* ✅ Wired up Print Selected */}
+            <button
+              onClick={handlePrintSelected}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-blue-firstRate transition-colors duration-200 hover:bg-blue-firstRate hover:text-white hover:border-blue-firstRate"
+            >
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -367,7 +410,11 @@ export default function PayrollPage() {
               Print selected slips
             </button>
 
-            <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-blue-firstRate transition-colors duration-200 hover:bg-blue-firstRate hover:text-white hover:border-blue-firstRate">
+            {/* ✅ Wired up Print All */}
+            <button
+              onClick={handlePrintAll}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-blue-firstRate transition-colors duration-200 hover:bg-blue-firstRate hover:text-white hover:border-blue-firstRate"
+            >
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -383,6 +430,7 @@ export default function PayrollPage() {
               </svg>
               Print all slips
             </button>
+
             <Link to="/payroll-history">
               <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-blue-firstRate transition-colors duration-200 hover:bg-blue-firstRate hover:text-white hover:border-blue-firstRate">
                 History of all payments
@@ -399,6 +447,13 @@ export default function PayrollPage() {
         defaultExRate={globalExRate}
         onClose={() => setPayingContract(null)}
         onSuccess={handleRefresh}
+      />
+
+      {/* ✅ Print Modal */}
+      <PrintPayrollModal
+        isOpen={printData.length > 0}
+        onClose={() => setPrintData([])}
+        data={printData}
       />
     </div>
   );
