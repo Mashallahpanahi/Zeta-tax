@@ -1,6 +1,6 @@
 import { useFetch } from "../hooks/useFetch";
 import { useCreate } from "../hooks/useCreate";
-
+import axios from "axios";
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export interface ContractEmployee {
@@ -58,3 +58,22 @@ export const getMonthlyPayrolls = (month: number, year: number) =>
 
 export const createPayroll = () =>
   useCreate<PayrollType>(`${BASE_URL}/employee-payroll`);
+
+export interface PayrollHistoryType extends PayrollType {
+  contract: EmployeeContract & {
+    employee: ContractEmployee;
+  };
+}
+
+export const getAllEmployeeContracts = () =>
+  useFetch<EmployeeContract[]>(`${BASE_URL}/employee-contract`);
+
+export const fetchContractPayrolls = (
+  contractId: number,
+  month: number,
+  year: number,
+) =>
+  axios.get<{ message: string; data: PayrollHistoryType[] }>(
+    `${BASE_URL}/employee-payroll/contract/${contractId}`,
+    { params: { month, year } },
+  );
