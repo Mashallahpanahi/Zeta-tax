@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { createPayroll, type EmployeeContract } from "../../api/payRollApi";
 import { calculateTax } from "../../utils/calculateTax";
 import { formatNumber } from "../../utils/formatNumber";
+import { dollarToAfghani } from "../../utils/dollarToAfghani";
 
 interface Props {
   isOpen: boolean;
@@ -52,8 +53,8 @@ export default function PostPayrollModal({
   // 1. Total USD (Base + Overtime)
   const totalUSD = baseSalary + bonus;
 
-  // 2. Total AFN (Convert USD to AFN using the rate)
-  const totalAFN = totalUSD * rateNum;
+  // 2. Total AFN (Numeric for Payload and Tax calculation)
+  const totalAFN = Number((totalUSD * rateNum).toFixed(2));
 
   // 3. Calculate Tax (Based on AFN)
   const taxResult = calculateTax(totalAFN);
@@ -72,11 +73,12 @@ export default function PostPayrollModal({
     if (!isCurrentMonth) return;
     if (!contract.contract_id) return;
 
+    // ✅ Payload updated to use totalAFN
     const payload = {
       contract_id: contract.contract_id,
       base_salary: baseSalary,
-      salary_usd: baseSalary,
-      salary_afn: baseSalary * rateNum,
+      salary_usd: totalUSD,
+      salary_afn: totalAFN,
       ex_rate: rateNum,
       overtime_bonus: bonus,
       date: date,
@@ -183,9 +185,10 @@ export default function PostPayrollModal({
             </div>
 
             <div className="flex justify-between">
-              <span className="text-gray-600">Salary (AFN)</span>
+              <span className="text-gray-600">Total (AFN)</span>
+              {/* ✅ Using dollarToAfghani utility for display */}
               <span className="font-medium">
-                {formatNumber(baseSalary * rateNum)} AFN
+                {dollarToAfghani(totalUSD, rateNum)}
               </span>
             </div>
 
