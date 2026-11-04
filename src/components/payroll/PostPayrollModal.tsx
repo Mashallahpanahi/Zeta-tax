@@ -59,11 +59,11 @@ export default function PostPayrollModal({
   // 3. Calculate Tax (Based on AFN)
   const taxResult = calculateTax(totalAFN);
 
-  // 4. Extract raw numbers from the formatted string
+  // 4. Extract raw numbers from the formatted string (e.g., "2,800" -> 2800)
   const taxAmountAFN = Number(taxResult.tax.replace(/,/g, ""));
   const finalSalaryAFN = Number(taxResult.amountAfterTax.replace(/,/g, ""));
 
-  // 5. Convert the AFN tax back to USD for the backend payload
+  // 5. For UI display only, show the USD equivalent of the tax/final salary
   const taxAmountUSD = rateNum > 0 ? taxAmountAFN / rateNum : 0;
   const finalSalaryUSD = rateNum > 0 ? finalSalaryAFN / rateNum : 0;
 
@@ -73,18 +73,18 @@ export default function PostPayrollModal({
     if (!isCurrentMonth) return;
     if (!contract.contract_id) return;
 
-    // ✅ Payload updated to use totalAFN
+    // ✅ Payload now sends the exact AFN values for tax and final_salary based on your instructions
     const payload = {
       contract_id: contract.contract_id,
       base_salary: baseSalary,
-      salary_usd: totalUSD,
-      salary_afn: totalAFN,
+      salary_usd: baseSalary,             // Matches your example JSON exactly
+      salary_afn: totalAFN,               // Calculated from (base + overtime) * rate
       ex_rate: rateNum,
       overtime_bonus: bonus,
       date: date,
-      tax: Number(taxAmountUSD.toFixed(2)),
-      final_salary: Number(finalSalaryUSD.toFixed(2)),
-      pay_status: true,
+      tax: taxAmountAFN,                  // Send AFN value
+      final_salary: finalSalaryAFN,       // Send AFN value
+      pay_status: true,                   // (Change to false if your backend expects it false initially)
     };
 
     const success = await create(payload);
@@ -186,7 +186,6 @@ export default function PostPayrollModal({
 
             <div className="flex justify-between">
               <span className="text-gray-600">Total (AFN)</span>
-              {/* ✅ Using dollarToAfghani utility for display */}
               <span className="font-medium">
                 {dollarToAfghani(totalUSD, rateNum)}
               </span>
@@ -206,10 +205,10 @@ export default function PostPayrollModal({
               <span className="text-gray-600">Tax ({taxResult.taxRate}%)</span>
               <div className="text-right">
                 <span className="font-semibold text-red-500">
-                  {formatNumber(taxAmountUSD)} USD
+                  {formatNumber(taxAmountAFN)} AFN
                 </span>
                 <span className="block text-xs text-gray-500">
-                  ({taxResult.tax} AFN)
+                  (${formatNumber(taxAmountUSD)} USD)
                 </span>
               </div>
             </div>
@@ -218,10 +217,10 @@ export default function PostPayrollModal({
               <span className="font-bold text-gray-800">Final Salary</span>
               <div className="text-right">
                 <span className="font-bold text-green-700">
-                  ${formatNumber(finalSalaryUSD)} USD
+                  {formatNumber(finalSalaryAFN)} AFN
                 </span>
                 <span className="block text-xs text-green-600 font-semibold">
-                  ({taxResult.amountAfterTax} AFN)
+                  (${formatNumber(finalSalaryUSD)} USD)
                 </span>
               </div>
             </div>
