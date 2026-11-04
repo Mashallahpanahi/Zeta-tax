@@ -88,7 +88,6 @@ export default function PayRollHistory() {
 
   const formatDate = (date: string) => {
     const [y, m, d] = date.split("T")[0].split("-").map(Number);
-
     return new Date(y, m - 1, d).toLocaleDateString("en-GB", {
       day: "2-digit",
       month: "short",
@@ -101,7 +100,9 @@ export default function PayRollHistory() {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
+
   const navigate = useNavigate();
+
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
       {/* Header */}
@@ -118,7 +119,7 @@ export default function PayRollHistory() {
         <button
           type="button"
           onClick={() => navigate("/EM-payroll")}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-black-700  border border-gray-300 rounded-lg hover:bg-blue-firstRate hover:text-white transition-colors"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-black-700 border border-gray-300 rounded-lg hover:bg-blue-firstRate hover:text-white transition-colors"
         >
           ← Back to Payroll
         </button>
@@ -206,7 +207,7 @@ export default function PayRollHistory() {
               <th className="p-4 text-sm font-semibold text-blue-firstRate">
                 Date
               </th>
-              <th className="p-4 text-sm font-semibold  text-blue-firstRate">
+              <th className="p-4 text-sm font-semibold text-blue-firstRate">
                 View More
               </th>
             </tr>
@@ -227,11 +228,6 @@ export default function PayRollHistory() {
               </tr>
             ) : (
               payrolls.map((payroll) => {
-                const exchangeRate = Number(payroll.ex_rate);
-                const finalPaidAFN =
-                  Number(payroll.final_salary) * exchangeRate;
-                const taxAFN = Number(payroll.tax) * exchangeRate;
-
                 return (
                   <tr
                     key={payroll.payroll_id}
@@ -247,12 +243,14 @@ export default function PayRollHistory() {
                       {formatAmount(payroll.base_salary)}
                     </td>
 
+                    {/* ✅ Use raw final_salary from backend */}
                     <td className="p-4 text-sm font-semibold text-gray-800">
-                      AFN {formatAmount(finalPaidAFN)}
+                      AFN {formatAmount(payroll.final_salary)}
                     </td>
 
+                    {/* ✅ Use raw tax from backend */}
                     <td className="p-4 text-sm text-gray-600">
-                      AFN {formatAmount(taxAFN)}
+                      AFN {formatAmount(payroll.tax)}
                     </td>
 
                     <td className="p-4 text-sm text-gray-600 whitespace-nowrap">
