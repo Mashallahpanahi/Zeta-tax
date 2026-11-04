@@ -133,7 +133,7 @@ const HomePage = () => {
       accent: "border-t-indigo-600",
     },
     {
-      title: "Unallocated Amount",
+      title: "Unallocated Amount(USD)",
       value: formatCurrency(unallocatedUsd, "USD"),
       subtitle: `Remaining balance for the full year ${year}`,
       period: "Yearly",
@@ -450,7 +450,7 @@ const HomePage = () => {
                 USD Remaining
               </p>
               <p className="mt-1 text-sm text-slate-600">
-                {formatCurrency(unallocatedUsd, "USD")} remains for the full
+                {formatCurrency(unallocatedUsd, "USD")} unallocated for the full
                 year {year}, according to the yearly report.
               </p>
             </div>
