@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   createOtherExpense,
   getAllOtherExpenses,
+  getRecentOtherExpenses, // ✅ Import the new hook
   type CreateOtherExpenseType,
   type OtherExpense,
 } from "../../api/otherExpenseApi";
@@ -20,17 +21,30 @@ const initialForm: CreateOtherExpenseType = {
 
 export default function OtherExpensesPage() {
   const [showHistory, setShowHistory] = useState(false);
+
+  // ✅ New State: false = 3 months, true = all time
+  const [showAllExpenses, setShowAllExpenses] = useState(false);
+
   const [editExpense, setEditExpense] = useState<OtherExpense | null>(null);
   const [form, setForm] = useState<CreateOtherExpenseType>(initialForm);
   const [formError, setFormError] = useState("");
   const [message, setMessage] = useState("");
 
+  // ✅ 1. Fetch Recent (Enabled only when in history AND showing recent)
   const {
-    data: expensesData,
-    loading,
-    error,
-    refetch,
-  } = getAllOtherExpenses(showHistory);
+    data: recentData,
+    loading: loadingRecent,
+    error: errorRecent,
+    refetch: refetchRecent,
+  } = getRecentOtherExpenses(showHistory && !showAllExpenses);
+
+  // ✅ 2. Fetch All (Enabled only when in history AND showing all)
+  const {
+    data: allData,
+    loading: loadingAll,
+    error: errorAll,
+    refetch: refetchAll,
+  } = getAllOtherExpenses(showHistory && showAllExpenses);
 
   const {
     data: categoriesData,
@@ -40,12 +54,21 @@ export default function OtherExpensesPage() {
 
   const { create, loading: saving, error: saveError } = createOtherExpense();
 
-  const expenses = expensesData ?? [];
+  // ✅ 3. Determine which data, loading, error, and refetch to use
+  const loading = showAllExpenses ? loadingAll : loadingRecent;
+  const error = showAllExpenses ? errorAll : errorRecent;
+  const activeRefetch = showAllExpenses ? refetchAll : refetchRecent;
+
+  // ✅ 4. Flatten the recent data into a single array
+  const displayExpenses = useMemo(() => {
+    if (showAllExpenses) return allData ?? [];
+    return recentData?.flatMap((group) => group.data) ?? [];
+  }, [showAllExpenses, allData, recentData]);
+
   const categories = categoriesData ?? [];
 
   useEffect(() => {
     if (!message) return;
-
     const timer = window.setTimeout(() => setMessage(""), 6000);
     return () => window.clearTimeout(timer);
   }, [message]);
@@ -93,13 +116,15 @@ export default function OtherExpensesPage() {
       setFormError("");
       setMessage("Expense created successfully.");
       setShowHistory(true);
+      setShowAllExpenses(false); // ✅ Reset to recent view after adding
+      refetchRecent(); // ✅ Force refetch the recent list
     }
   }
 
   function handleUpdateSuccess() {
     setEditExpense(null);
     setMessage("Expense updated successfully.");
-    refetch();
+    activeRefetch(); // ✅ Refresh the currently active view
   }
 
   return (
@@ -116,13 +141,15 @@ export default function OtherExpensesPage() {
           {showHistory ? "Back to Add Expense" : "View Expense History"}
         </button>
       </div>
+
       {!showHistory ? (
-        <section className="relative rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">          <div className="mb-4">
-          <h1 className="text-lg font-bold text-gray-900">Add New Expense</h1>
-          <p className="mt-1 text-xs text-gray-500">
-            Enter the details of your business expense.
-          </p>
-        </div>
+        <section className="relative rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
+          <div className="mb-4">
+            <h1 className="text-lg font-bold text-gray-900">Add New Expense</h1>
+            <p className="mt-1 text-xs text-gray-500">
+              Enter the details of your business expense.
+            </p>
+          </div>
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
               <label
@@ -274,6 +301,7 @@ export default function OtherExpensesPage() {
               </button>
             </div>
           </form>
+
           {message && (
             <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
               <div
@@ -292,16 +320,18 @@ export default function OtherExpensesPage() {
               </div>
             </div>
           )}
-
         </section>
       ) : (
         <OtherExpenseHistory
-          expenses={expenses}
+          expenses={displayExpenses} // ✅ Pass flattened data
           categories={categories}
           loading={loading}
           error={error}
-          onRetry={refetch}
+          onRetry={activeRefetch}
           onEdit={setEditExpense}
+          // ✅ Pass Toggle Logic
+          isShowingAll={showAllExpenses}
+          onToggleShowAll={() => setShowAllExpenses((prev) => !prev)}
         />
       )}
 
