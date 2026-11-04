@@ -203,8 +203,10 @@ export default function PayRollHistory() {
               <th className="p-4 text-sm font-semibold text-gray-700">
                 Tax (AFN)
               </th>
-              <th className="p-4 text-sm font-semibold text-gray-700">Date</th>
-              <th className="p-4 text-sm font-semibold text-gray-700">
+              <th className="p-4 text-sm font-semibold text-blue-firstRate">
+                Date
+              </th>
+              <th className="p-4 text-sm font-semibold  text-blue-firstRate">
                 View More
               </th>
             </tr>

@@ -142,7 +142,7 @@ const HomePage = () => {
       accent: "border-t-emerald-600",
     },
     {
-      title: "Total Expenses",
+      title: "Total Expenses(AFN)",
       value: formatNumber(totalExpenses),
       subtitle: `${formatNumber(report?.total_expense.count)} recorded expenses`,
       period: month === "all" ? "Yearly" : "Monthly",
@@ -484,7 +484,7 @@ const HomePage = () => {
             >
               <div className="flex h-32 w-32 flex-col items-center justify-center rounded-full bg-white">
                 <span className="text-xs font-medium text-slate-500">
-                  Total expenses
+                  Total expenses(af)
                 </span>
                 <span className="mt-1 max-w-full px-2 text-center text-lg font-bold text-slate-900">
                   {formatNumber(totalExpenses)}
@@ -608,7 +608,7 @@ const HomePage = () => {
               </div>
               <div>
                 <p className="text-sm font-semibold text-slate-800">
-                  Total Expenses
+                  Total Expenses in AFN
                 </p>
                 <p className="mt-1 text-xs text-slate-500">
                   Other expenses and payroll
@@ -616,7 +616,7 @@ const HomePage = () => {
               </div>
             </div>
             <span className="text-right text-sm font-bold text-slate-900 sm:text-base">
-              {formatNumber(totalExpenses)}
+              AFN {formatNumber(totalExpenses)}
             </span>
           </div>
         </div>

@@ -3,6 +3,7 @@ import {
   useUnallocatedYearly,
   useMonthlyTotals,
   useCurrentBalance,
+  useYearlyReport, // ✅ Added to get the correct total expenses
 } from "../../api/reportApi";
 
 // Format numbers with commas
@@ -22,24 +23,46 @@ export default function FinancialSummary() {
     loading: loadingYearly,
     refetch: refetchYearly,
   } = useUnallocatedYearly(year);
+  
   const {
     data: monthlyData,
     loading: loadingMonthly,
     refetch: refetchMonthly,
   } = useMonthlyTotals(month, year);
+
+  // ✅ Fetch exact expenses from the report API
+  const {
+    data: yearlyReportData,
+    loading: loadingYearlyReport,
+    refetch: refetchYearlyReport,
+  } = useYearlyReport(year);
+
+  const {
+    data: monthlyReportData,
+    loading: loadingMonthlyReport,
+    refetch: refetchMonthlyReport,
+  } = useYearlyReport(year, month);
+
   const {
     data: balanceData,
     loading: loadingBalance,
     refetch: refetchBalance,
   } = useCurrentBalance();
 
-  const isLoading = loadingYearly || loadingMonthly || loadingBalance;
+  const isLoading =
+    loadingYearly ||
+    loadingMonthly ||
+    loadingBalance ||
+    loadingYearlyReport ||
+    loadingMonthlyReport;
 
   // ✅ Refresh only the Financial Summary data
   const handleRefresh = () => {
     refetchYearly();
     refetchMonthly();
     refetchBalance();
+    refetchYearlyReport();
+    refetchMonthlyReport();
   };
 
   const yearOptions = [];
@@ -52,18 +75,8 @@ export default function FinancialSummary() {
   }
 
   const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
   ];
 
   // ✅ Custom Grid Columns: [1st Col] [Income] [Exchanged] [Expenses] [Date Picker]
@@ -73,7 +86,8 @@ export default function FinancialSummary() {
   return (
     <>
       <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-        CashBook Overview</h1>
+        CashBook Overview
+      </h1>
       <p className="pl-3 text-sm text-gray-500">
         Monitor your cash flow with a detailed breakdown of yearly and monthly
         income, exchanges, and expenses.
@@ -90,9 +104,8 @@ export default function FinancialSummary() {
           <div className="border-r-2 border-gray-300 p-3 text-center">
             exchanged (allocated)
           </div>
-          {/* ✅ New Expenses Column */}
           <div className="border-r-2 border-gray-300 p-3 text-center">
-            total expenses
+            total expenses(AFN)
           </div>
           <div className="p-3 text-center">Select Date</div>
         </div>
@@ -121,11 +134,11 @@ export default function FinancialSummary() {
             </span>
           </div>
 
-          {/* ✅ Yearly Expenses Data */}
+          {/* ✅ Yearly Expenses Data (Using yearlyReportData) */}
           <div className="border-r-2 border-gray-300 p-3 text-center flex items-center justify-center font-semibold text-red-600">
             {isLoading
               ? "..."
-              : `${formatNumber(yearlyData?.total_expense?.total)}`}
+              : `${formatNumber(yearlyReportData?.total_expense?.total)} af`}
           </div>
 
           <div className="p-3 flex justify-center items-center">
@@ -167,11 +180,11 @@ export default function FinancialSummary() {
             </span>
           </div>
 
-          {/* ✅ Monthly Expenses Data */}
+          {/* ✅ Monthly Expenses Data (Using monthlyReportData) */}
           <div className="border-r-2 border-gray-300 p-3 text-center flex items-center justify-center font-semibold text-red-600">
             {isLoading
               ? "..."
-              : `${formatNumber(monthlyData?.total_expense?.total)}`}
+              : `${formatNumber(monthlyReportData?.total_expense?.total)} af`}
           </div>
 
           <div className="p-3 flex justify-center items-center">
@@ -211,7 +224,6 @@ export default function FinancialSummary() {
               </span>
             </div>
 
-            {/* ✅ Refresh Button specifically for this component */}
             <button
               onClick={handleRefresh}
               disabled={isLoading}
