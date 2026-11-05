@@ -8,6 +8,7 @@ interface Props {
   isOpen: boolean;
   contract: EmployeeContract | null;
   date: string;
+  defaultExRate: string;
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -16,6 +17,7 @@ export default function PostPayrollModal({
   isOpen,
   contract,
   date,
+  defaultExRate,
   onClose,
   onSuccess,
 }: Props) {

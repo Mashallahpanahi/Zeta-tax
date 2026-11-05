@@ -153,7 +153,7 @@ const HomePage = () => {
   ];
 
   return (
-    <div className="min-h-screen space-y-6 bg-slate-50/70 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-full min-w-0 space-y-6 bg-slate-50/70 p-3 sm:p-5 lg:p-6 2xl:p-8">
       {/* Header */}
       <section className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-950 via-blue-800 to-blue-600 p-6 text-white shadow-lg sm:p-8">
         <div className="pointer-events-none absolute -right-12 -top-24 h-64 w-64 rounded-full border-[35px] border-white/5" />
@@ -577,12 +577,12 @@ const HomePage = () => {
                 </p>
               </div>
             </div>
-            <span className="text-right text-sm font-bold text-slate-900 sm:text-base">
+            <span className="max-w-[45%] break-words text-right text-sm font-bold text-slate-900 sm:text-base">
               {formatCurrency(report?.transaction_income.total, "USD")}
             </span>
           </div>
 
-          <div className="flex items-center justify-between gap-4 py-4">
+          <div className="flex min-w-0 items-center justify-between gap-3 py-4">
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-emerald-50 p-2.5 text-emerald-700">
                 <FaExchangeAlt />

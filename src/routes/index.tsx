@@ -30,7 +30,7 @@ const AppRoutes = () => (
         <Route path="contract-history" element={<EmployeeContractHistory />} />
         <Route path="expense-categories" element={<ExpenseCategoryPage />} />
         <Route path="other-expenses" element={<OtherExpensesPage />} />
-        <Route path="exchange-to-afn" element={< ExchangeToAFNPage />} />
+        <Route path="exchange-to-afn" element={<ExchangeToAFNPage />} />
         <Route path="settings-tax" element={<TaxPage />} />
         <Route path="tax-reports" element={<TaxReportsPage />} />
         <Route path="payroll-history" element={<PayRollHistory />} />

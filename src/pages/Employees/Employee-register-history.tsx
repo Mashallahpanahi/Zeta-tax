@@ -6,6 +6,10 @@ import {
   type GetAllEmployeeType,
 } from "../../api/employeeApi";
 import ViewMoreDetailEmployeeModal from "../../components/employee/viewmoreDetailEmployeeModal";
+import ResponsivePage from "../../components/common/ResponsivePage";
+import Loader from "../../components/common/Loader";
+
+
 
 export default function EmployeeRegisterHistory() {
   const navigate = useNavigate();
@@ -66,7 +70,7 @@ export default function EmployeeRegisterHistory() {
   };
 
   if (loading) {
-    return <p className="p-6">Loading contract history...</p>;
+    return <Loader message="Loading employee history..." fullPage />;
   }
 
   if (error) {
@@ -88,7 +92,7 @@ export default function EmployeeRegisterHistory() {
   }
 
   return (
-    <div className="w-full min-w-0 max-w-[1640px] space-y-6 p-4 sm:p-6">
+    <ResponsivePage>
       {/* ---------- TOP BAR ---------- */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -123,8 +127,8 @@ export default function EmployeeRegisterHistory() {
       )}
 
       {/* ---------- TABLE ---------- */}
-      <div className="w-full overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
-        <table className="w-full min-w-[1000px] border-collapse text-left text-sm">
+      <div className="w-full min-w-0 max-w-full overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+        <table className="w-full min-w-[900px] border-collapse text-left text-sm 2xl:text-base">
           <thead className="sticky top-0 z-10 bg-gray-100">
             <tr>
               {columns.map((column) => (
@@ -164,8 +168,8 @@ export default function EmployeeRegisterHistory() {
                 <td className="whitespace-nowrap px-2 py-3">
                   <span
                     className={`inline-block rounded px-2 py-1 text-xs font-medium ${emp.status === "active"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
                       }`}
                   >
                     {emp.status || "—"}
@@ -209,7 +213,7 @@ export default function EmployeeRegisterHistory() {
 
             {allEmployees.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-2 py-8 text-center text-gray-500">
+                <td colSpan={7} className="px-3 py-8 text-center text-gray-500">
                   No employee registrations found.
                 </td>
               </tr>
@@ -228,6 +232,7 @@ export default function EmployeeRegisterHistory() {
         employee={viewEmployee}
         onClose={() => setViewEmployee(null)}
       />
-    </div>
+
+    </ResponsivePage>
   );
 }

@@ -11,7 +11,7 @@ import ViewIncomeModal from "../../components/income/ViewIncomeModal";
 
 // ✅ Import the Financial Summary component
 import FinancialSummary from "../../components/report/FinancialSummary";
-
+import Loader from "../../components/common/Loader";
 
 function isCurrentMonth(date: IncomeTransactionType["date"]): boolean {
   const [year, month] = String(date)
@@ -78,7 +78,7 @@ export default function IncomeTransactionPage() {
 
   const columns = ["date", "amount", "currency", "description"];
 
-  if (loading) return <p className="p-6">Loading income transactions...</p>;
+  if (loading) return <Loader className="p-6">Loading income transactions...</Loader>;
 
   if (error) {
     return (
@@ -179,8 +179,8 @@ export default function IncomeTransactionPage() {
                               : "You can only edit transactions from the current month"
                           }
                           className={`rounded-md px-2 py-1 text-xs text-white transition ${canEdit
-                              ? "bg-yellow-500 hover:bg-yellow-600"
-                              : "cursor-not-allowed bg-gray-400 opacity-60"
+                            ? "bg-yellow-500 hover:bg-yellow-600"
+                            : "cursor-not-allowed bg-gray-400 opacity-60"
                             }`}
                         >
                           Edit

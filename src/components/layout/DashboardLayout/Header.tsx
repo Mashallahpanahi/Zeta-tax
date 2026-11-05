@@ -1,30 +1,78 @@
+// import React from "react";
+// import { FaSearch, FaRegBell } from "react-icons/fa";
+
+// const Header = () => {
+//   return (
+//     <header className="flex items-center justify-between px-8 py-6 bg-white rounded-t-3xl">
+
+//       {/* LEFT: Search Bar */}
+//       <div className="flex items-center gap-4 w-1/2">
+//         <span className="text-sm text-gray-500 font-medium">Short:</span>
+//         <div className="relative w-64">
+//           <input
+//             type="text"
+//             placeholder="Search..."
+//             className="w-full bg-gray-50 border border-gray-200 rounded-full py-2 pl-4 pr-10 text-sm text-gray-700 focus:outline-none focus:border-blue-firstRate transition-colors"
+//           />
+//           <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400">
+//             <FaSearch className="text-xs" />
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* RIGHT: Notifications */}
+//       <div className="flex items-center">
+//         <button className="relative text-gray-400 hover:text-blue-firstRate transition-colors">
+//           <FaRegBell className="text-xl" />
+//           <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+//         </button>
+//       </div>
+
+//     </header>
+//   );
+// };
+
+// export default Header;
+
+
+
+
+
 import React from "react";
 import { FaSearch, FaRegBell } from "react-icons/fa";
 
 const Header = () => {
   return (
-    <header className="flex items-center justify-between px-8 py-6 bg-white rounded-t-3xl">
-      
+    <header className="flex w-full items-center justify-between gap-3 rounded-t-2xl bg-white px-3 py-4 sm:px-5 sm:py-5 lg:rounded-t-3xl lg:px-8 lg:py-6">
+
       {/* LEFT: Search Bar */}
-      <div className="flex items-center gap-4 w-1/2">
-        <span className="text-sm text-gray-500 font-medium">Short:</span>
-        <div className="relative w-64">
+      <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">
+        <span className="shrink-0 text-sm font-medium text-gray-500">
+          Short:
+        </span>
+
+        <div className="relative w-full max-w-64">
           <input
             type="text"
             placeholder="Search..."
-            className="w-full bg-gray-50 border border-gray-200 rounded-full py-2 pl-4 pr-10 text-sm text-gray-700 focus:outline-none focus:border-blue-firstRate transition-colors"
+            className="w-full rounded-full border border-gray-200 bg-gray-50 py-2 pl-4 pr-10 text-sm text-gray-700 transition-colors focus:border-blue-firstRate focus:outline-none"
           />
-          <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400">
+
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400">
             <FaSearch className="text-xs" />
           </div>
         </div>
       </div>
 
       {/* RIGHT: Notifications */}
-      <div className="flex items-center">
-        <button className="relative text-gray-400 hover:text-blue-firstRate transition-colors">
+      <div className="flex shrink-0 items-center">
+        <button
+          type="button"
+          aria-label="Notifications"
+          className="relative text-gray-400 transition-colors hover:text-blue-firstRate"
+        >
           <FaRegBell className="text-xl" />
-          <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+          <span className="absolute right-0 top-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
         </button>
       </div>
 

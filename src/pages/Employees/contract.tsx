@@ -11,6 +11,8 @@ import CreateEmployeeContractModal from "../../components/employee/CreateEmploye
 import UpdateEmployeeContractModal from "../../components/employee/UpdateEmployeeContractModal";
 import EmployeeContractDetailsModal from "../../components/employee/EmployeeContractDetailsModal";
 import { useNavigate } from "react-router-dom";
+import ResponsivePage from "../../components/common/ResponsivePage";
+import Loader from "../../components/common/Loader";
 
 export default function ContractPage() {
   const {
@@ -118,12 +120,12 @@ export default function ContractPage() {
   }
 
   if (loading) {
-    return <p className="p-6">Loading contracts...</p>;
+    return <Loader message="Loading contracts..." fullPage />;
   }
 
   if (error && contracts.length === 0) {
     return (
-      <div className="space-y-4 p-6">
+      <div className="mx-auto w-full max-w-[2200px] space-y-4 p-3 min-[520px]:p-4 min-[1024px]:p-6 min-[1536px]:p-8 min-[1920px]:p-10">
         <p role="alert" className="text-red-500">
           Error: {error}
         </p>
@@ -143,7 +145,8 @@ export default function ContractPage() {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <ResponsivePage>
+
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-xl font-bold">Employee Contracts</h1>
 
@@ -181,8 +184,8 @@ export default function ContractPage() {
         </p>
       )}
 
-      <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
-        <table className="w-full min-w-[620px] border-collapse">
+      <div className="w-full min-w-0 max-w-full overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+        <table className="w-full min-w-[700px] border-collapse text-sm 2xl:text-base">
           <thead className="bg-gray-50">
             <tr>
               {[
@@ -194,7 +197,7 @@ export default function ContractPage() {
               ].map((heading) => (
                 <th
                   key={heading}
-                  className="whitespace-nowrap p-3 text-left text-sm font-semibold text-gray-700"
+                  className="whitespace-nowrap px-4 py-3 text-left text-sm font-semibold text-gray-700 2xl:px-5 2xl:py-4"
                 >
                   {heading}
                 </th>
@@ -213,22 +216,22 @@ export default function ContractPage() {
                   key={id ?? index}
                   className="border-b border-gray-100 transition hover:bg-blue-50"
                 >
-                  <td className="whitespace-nowrap p-3 text-sm">{id ?? "—"}</td>
+                  <td className="whitespace-nowrap px-4 py-4 text-sm 2xl:px-5 2xl:py-5">{id ?? "—"}</td>
 
-                  <td className="whitespace-nowrap p-3 text-sm">
+                  <td className="whitespace-nowrap px-4 py-4 text-sm 2xl:px-5 2xl:py-5">
                     {employee?.first_name ?? "—"}
                   </td>
 
-                  <td className="whitespace-nowrap p-3 text-sm">
+                  <td className="whitespace-nowrap px-4 py-4 text-sm 2xl:px-5 2xl:py-5">
                     {employee?.last_name ?? "—"}
                   </td>
 
-                  <td className="whitespace-nowrap p-3 text-sm">
+                  <td className="whitespace-nowrap px-4 py-4 text-sm 2xl:px-5 2xl:py-5">
                     {contract.termination_date?.slice(0, 10) || "—"}
                   </td>
 
                   <td className="whitespace-nowrap p-3">
-                    <div className="flex w-max flex-nowrap items-center gap-2">
+                    <div className="flex w-max flex-nowrap items-center gap-2 2xl:gap-3">
                       <button
                         type="button"
                         onClick={() => setViewContract(contract)}
@@ -288,11 +291,11 @@ export default function ContractPage() {
         employeeName={
           editContract
             ? [
-                getEmployee(editContract)?.first_name,
-                getEmployee(editContract)?.last_name,
-              ]
-                .filter(Boolean)
-                .join(" ") || "Employee not found"
+              getEmployee(editContract)?.first_name,
+              getEmployee(editContract)?.last_name,
+            ]
+              .filter(Boolean)
+              .join(" ") || "Employee not found"
             : ""
         }
         onClose={() => setEditContract(null)}
@@ -305,15 +308,16 @@ export default function ContractPage() {
         employeeName={
           viewContract
             ? [
-                getEmployee(viewContract)?.first_name,
-                getEmployee(viewContract)?.last_name,
-              ]
-                .filter(Boolean)
-                .join(" ") || "Unknown employee"
+              getEmployee(viewContract)?.first_name,
+              getEmployee(viewContract)?.last_name,
+            ]
+              .filter(Boolean)
+              .join(" ") || "Unknown employee"
             : "Unknown employee"
         }
         onClose={() => setViewContract(null)}
       />
-    </div>
+
+    </ResponsivePage>
   );
 }
