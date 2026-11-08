@@ -63,7 +63,6 @@ export default function RegisterNewEmployeeModal({
 
   const labelClass = "text-xs text-gray-600 mb-1 block";
 
-
   //<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-3 sm:p-5">
@@ -124,7 +123,8 @@ export default function RegisterNewEmployeeModal({
             {/* ✅ Date of Birth — picker + typable, with format hint */}
             <div>
               <label className={labelClass}>
-                Date of Birth <span className="text-gray-400">(YYYY-MM-DD)</span>
+                Date of Birth{" "}
+                <span className="text-gray-400">(YYYY-MM-DD)</span>
               </label>
               <input
                 name="date_of_birth"
@@ -172,7 +172,7 @@ export default function RegisterNewEmployeeModal({
             <input
               name="tin"
               type="number"
-              value={form.tin ? "" : form.tin}
+              value={form.tin || ""}
               onChange={handleChange}
               placeholder="TIN (e.g. 1234567890)"
               className={inputClass}
@@ -206,7 +206,6 @@ export default function RegisterNewEmployeeModal({
             </div>
           </form>
         </div>
-
       </div>
     </div>
   );
