@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Loader from "../../components/common/Loader";
 import { useNavigate } from "react-router-dom";
 import {
   getAllEmployees,
@@ -8,6 +9,8 @@ import {
 import RegisterNewEmployeeModal from "../../components/employee/RegisterNewEmployeeModal";
 import UpdateEmployeeModal from "../../components/employee/UpdateEmployeeModal";
 import ViewMoreDetailEmployeeModal from "../../components/employee/viewmoreDetailEmployeeModal";
+import ResponsivePage from "../../components/common/ResponsivePage";
+
 
 export default function RegisteredNewEmployeePage() {
   const navigate = useNavigate();
@@ -63,7 +66,7 @@ export default function RegisteredNewEmployeePage() {
   };
 
   if (loading) {
-    return <p className="p-6">Loading employees...</p>;
+    return <Loader message="Loading employees..." fullPage />;
   }
 
   if (error) {
@@ -85,7 +88,7 @@ export default function RegisteredNewEmployeePage() {
   }
 
   return (
-    <div className="w-full min-w-[600px] max-w-[1640px] space-y-6 p-4 sm:p-6">
+    <ResponsivePage>
       {/* ---------- TOP BAR ---------- */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -128,8 +131,8 @@ export default function RegisteredNewEmployeePage() {
       )}
 
       {/* ---------- TABLE ---------- */}
-      <div className="w-full overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
-        <table className="w-full min-w-[625px]  border-collapse text-left text-sm">
+      <div className="w-full min-w-0 max-w-full overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+        <table className="w-full min-w-[700px] border-collapse text-left text-sm lg:text-base">
           <thead className="sticky top-0 z-10 bg-gray-100">
             <tr>
               {columns.map((column) => (
@@ -149,19 +152,19 @@ export default function RegisteredNewEmployeePage() {
                 key={emp.registration_id}
                 className="border-b border-gray-100 align-top transition hover:bg-gray-50"
               >
-                <td className="whitespace-nowrap px-4 py-3 text-gray-700">
+                <td className="whitespace-nowrap px-4 py-4 text-gray-700 2xl:px-5 2xl:py-5">
                   {emp.registration_id}
                 </td>
-                <td className="whitespace-nowrap px-4 py-3 text-gray-700">
+                <td className="whitespace-nowrap px-4 py-4 text-gray-700 2xl:px-5 2xl:py-5">
                   {emp.first_name}
                 </td>
-                <td className="whitespace-nowrap px-4 py-3 text-gray-700">
+                <td className="whitespace-nowrap px-4 py-4 text-gray-700 2xl:px-5 2xl:py-5">
                   {emp.last_name}
                 </td>
-                <td className="whitespace-nowrap px-4 py-3 text-gray-700">
+                <td className="whitespace-nowrap px-4 py-4 text-gray-700 2xl:px-5 2xl:py-5">
                   {emp.email}
                 </td>
-                <td className="whitespace-nowrap px-4 py-3 text-gray-700">
+                <td className="whitespace-nowrap px-4 py-4 text-gray-700 2xl:px-5 2xl:py-5">
                   {emp.phone}
                 </td>
 
@@ -199,7 +202,7 @@ export default function RegisteredNewEmployeePage() {
 
             {activeEmployees.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+                <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
                   No active employees found.
                 </td>
               </tr>
@@ -231,6 +234,6 @@ export default function RegisteredNewEmployeePage() {
         employee={viewEmployee}
         onClose={() => setViewEmployee(null)}
       />
-    </div>
+    </ResponsivePage>
   );
 }
