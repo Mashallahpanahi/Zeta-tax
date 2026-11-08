@@ -9,28 +9,18 @@ import AddIncomeModal from "../../components/income/AddIncomeModal";
 import EditIncomeModal from "../../components/income/EditIncomeModal";
 import ViewIncomeModal from "../../components/income/ViewIncomeModal";
 
-// ✅ Import the Financial Summary component
 import FinancialSummary from "../../components/report/FinancialSummary";
 import Loader from "../../components/common/Loader";
 
 function isCurrentMonth(date: IncomeTransactionType["date"]): boolean {
-  const [year, month] = String(date)
-    .slice(0, 10)
-    .split("-")
-    .map(Number);
-
+  const [year, month] = String(date).slice(0, 10).split("-").map(Number);
   const today = new Date();
-
-  return (
-    year === today.getFullYear() &&
-    month === today.getMonth() + 1
-  );
+  return year === today.getFullYear() && month === today.getMonth() + 1;
 }
+
 export default function IncomeTransactionPage() {
-  // Toggle state: false = last 3 months, true = all data
   const [showAll, setShowAll] = useState(false);
 
-  // Hook 1: Fetch recent (default)
   const {
     data: recentData,
     message: recentMsg,
@@ -39,7 +29,6 @@ export default function IncomeTransactionPage() {
     refetch: refetchRecent,
   } = getRecentIncomeTransactions();
 
-  // Hook 2: Fetch all
   const {
     data: allData,
     message: allMsg,
@@ -50,25 +39,21 @@ export default function IncomeTransactionPage() {
 
   const [visibleMessage, setVisibleMessage] = useState<string | null>(null);
 
-  // Modal States
   const [selectedTransaction, setSelectedTransaction] =
     useState<IncomeTransactionType | null>(null);
   const [editTransaction, setEditTransaction] =
     useState<IncomeTransactionType | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
 
-  // Determine active data based on toggle
   const activeMessage = showAll ? allMsg : recentMsg;
   const loading = showAll ? allLoading : recentLoading;
   const error = showAll ? allError : recentError;
   const activeRefetch = showAll ? refetchAll : refetchRecent;
 
-  // Flatten the grouped 3-month data into a single array of transactions
   const transactionList = showAll
     ? (allData ?? [])
     : (recentData?.flatMap((monthGroup) => monthGroup.data) ?? []);
 
-  // Auto-hide backend message
   useEffect(() => {
     if (!activeMessage) return;
     setVisibleMessage(activeMessage);
@@ -76,9 +61,28 @@ export default function IncomeTransactionPage() {
     return () => window.clearTimeout(timer);
   }, [activeMessage]);
 
+  // ✅ Toggle handler: switch view AND refetch the target endpoint,
+  //    so the view you land on always shows fresh API data.
+  const handleToggle = () => {
+    const nextShowAll = !showAll;
+    setShowAll(nextShowAll);
+    if (nextShowAll) {
+      void refetchAll();
+    } else {
+      void refetchRecent();
+    }
+  };
+
+  // ✅ After add/edit, refetch BOTH endpoints so neither view goes stale.
+  const handleMutationSuccess = () => {
+    void refetchRecent();
+    void refetchAll();
+  };
+
   const columns = ["date", "amount", "currency", "description"];
 
-  if (loading) return <Loader className="p-6">Loading income transactions...</Loader>;
+  if (loading)
+    return <Loader className="p-6">Loading income transactions...</Loader>;
 
   if (error) {
     return (
@@ -96,10 +100,8 @@ export default function IncomeTransactionPage() {
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
-      {/* ✅ Financial Summary at the top of the page */}
       <FinancialSummary />
 
-      {/* Top Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold text-gray-900">
@@ -124,7 +126,6 @@ export default function IncomeTransactionPage() {
         </p>
       )}
 
-      {/* Table */}
       <div className="w-full overflow-hidden rounded-xl border border-gray-200 shadow-sm">
         <table className="w-full table-fixed border-collapse">
           <thead className="bg-gray-50">
@@ -178,10 +179,11 @@ export default function IncomeTransactionPage() {
                               ? "Edit transaction"
                               : "You can only edit transactions from the current month"
                           }
-                          className={`rounded-md px-2 py-1 text-xs text-white transition ${canEdit
-                            ? "bg-yellow-500 hover:bg-yellow-600"
-                            : "cursor-not-allowed bg-gray-400 opacity-60"
-                            }`}
+                          className={`rounded-md px-2 py-1 text-xs text-white transition ${
+                            canEdit
+                              ? "bg-yellow-500 hover:bg-yellow-600"
+                              : "cursor-not-allowed bg-gray-400 opacity-60"
+                          }`}
                         >
                           Edit
                         </button>
@@ -204,27 +206,25 @@ export default function IncomeTransactionPage() {
         </table>
       </div>
 
-      {/* Show All Button at the bottom */}
       <div className="flex justify-center pt-4">
         <button
-          onClick={() => setShowAll((prev) => !prev)}
+          onClick={handleToggle}
           className="rounded-lg border border-gray-300 bg-white px-6 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
         >
           {showAll ? "Show Only Recent (3 Months)" : "Show All Transactions"}
         </button>
       </div>
 
-      {/* Modals */}
       <AddIncomeModal
         isOpen={showAddForm}
         onClose={() => setShowAddForm(false)}
-        onSuccess={activeRefetch}
+        onSuccess={handleMutationSuccess}
       />
       <EditIncomeModal
         isOpen={!!editTransaction}
         transaction={editTransaction}
         onClose={() => setEditTransaction(null)}
-        onSuccess={activeRefetch}
+        onSuccess={handleMutationSuccess}
       />
       <ViewIncomeModal
         isOpen={!!selectedTransaction}

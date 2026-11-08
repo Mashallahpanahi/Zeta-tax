@@ -55,8 +55,6 @@ export default function ExchangeToAFNPage() {
   // This is the exact amount to pass to the modal (e.g., 37,089.5)
   const exactUnallocatedUSD = yearlyData?.unallocated_usd ?? 0;
 
-  // Determine which data to use based on toggle
-  const activeRefetch = showAll ? refetchAll : refetchRecent;
   const allExchanges = allData ?? [];
 
   // Flatten the 3-month data into a single array
@@ -115,12 +113,28 @@ export default function ExchangeToAFNPage() {
     return [...months].sort((a, b) => b.localeCompare(a));
   }, [activeExchanges]);
 
+  // ✅ Toggle: flip view AND refetch the endpoint you're switching to,
+  //    so every click on "Show All.." / "Show Only Last 3 Months" hits the API.
+  const handleToggle = () => {
+    const nextShowAll = !showAll;
+    setShowAll(nextShowAll);
+    if (nextShowAll) {
+      // "Show All.." → GET /cash-balance-exchanged-to-af
+      void refetchAll();
+    } else {
+      // "Show Only Last 3 Months" → GET /cash-balance-exchanged-to-af/last-three-months
+      void refetchRecent();
+    }
+  };
+
   const handleExchangeCreated = () => {
     setIsModalOpen(false);
     setMessage("Exchange saved successfully.");
 
-    // ✅ Refetch all data including the exact unallocated amount
-    activeRefetch();
+    // ✅ Refetch BOTH endpoints so neither view goes stale,
+    //    plus the dependencies used by the modal.
+    void refetchRecent();
+    void refetchAll();
     refetchIncomes();
     refetchYearly();
   };
@@ -137,8 +151,8 @@ export default function ExchangeToAFNPage() {
             Monthly Invoice Allocation
           </h1>
           <p className="mt-1 text-sm text-gray-500">
-            Review your monthly currency allocations, exchange rates, and the AFN
-            received from each USD exchange.
+            Review your monthly currency allocations, exchange rates, and the
+            AFN received from each USD exchange.
           </p>
         </div>
 
@@ -264,11 +278,11 @@ export default function ExchangeToAFNPage() {
             {selectedMonth === "all"
               ? "Grand Total — All Displayed"
               : `Grand Total — ${new Date(
-                `${selectedMonth}-01T00:00:00`,
-              ).toLocaleDateString("en-US", {
-                month: "long",
-                year: "numeric",
-              })}`}
+                  `${selectedMonth}-01T00:00:00`,
+                ).toLocaleDateString("en-US", {
+                  month: "long",
+                  year: "numeric",
+                })}`}
           </span>
 
           <div className="flex flex-wrap justify-end gap-x-6 gap-y-2 text-sm">
@@ -291,7 +305,7 @@ export default function ExchangeToAFNPage() {
       {/* Show All Toggle Button */}
       <div className="flex justify-center pt-2">
         <button
-          onClick={() => setShowAll((prev) => !prev)}
+          onClick={handleToggle}
           className="rounded-lg border border-gray-300 bg-white px-6 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
         >
           {showAll ? "Show Only Last 3 Months" : "Show All.."}
