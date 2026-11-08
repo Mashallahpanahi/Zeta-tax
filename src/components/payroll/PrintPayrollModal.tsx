@@ -120,15 +120,22 @@ function PayslipDocument({ contract, payroll }: PayslipData) {
   const fullName = `${firstName} ${lastName}`.trim();
 
   const exRate = Number(payroll.ex_rate || 1);
-  const baseSalaryUSD = Number(payroll.base_salary || 0);
-  const overtimeUSD = Number(payroll.overtime_bonus || 0);
-  const taxUSD = Number(payroll.tax || 0);
-  const netSalaryUSD = Number(payroll.final_salary || 0);
 
+  // Base Salary (API provides base_salary as USD)
+  const baseSalaryUSD = Number(payroll.base_salary || 0);
   const baseSalaryAFN = baseSalaryUSD * exRate;
+
+  // Overtime (API provides overtime_bonus as USD)
+  const overtimeUSD = Number(payroll.overtime_bonus || 0);
   const overtimeAFN = overtimeUSD * exRate;
-  const taxAFN = taxUSD * exRate;
-  const netSalaryAFN = netSalaryUSD * exRate;
+
+  // Tax (API provides tax as AFN)
+  const taxAFN = Number(payroll.tax || 0);
+  const taxUSD = taxAFN / exRate;
+
+  // Net Salary (API provides final_salary as AFN)
+  const netSalaryAFN = Number(payroll.final_salary || 0);
+  const netSalaryUSD = netSalaryAFN / exRate;
 
   const dateObj = new Date(payroll.date);
   const monthName = dateObj.toLocaleString("en-US", { month: "long" });
