@@ -94,8 +94,8 @@ export default function EmployeeContractHistory() {
 
   const employeeName = selectedEmployee
     ? [selectedEmployee.first_name, selectedEmployee.last_name]
-      .filter(Boolean)
-      .join(" ")
+        .filter(Boolean)
+        .join(" ")
     : "Employee not found";
 
   return (
@@ -162,10 +162,11 @@ export default function EmployeeContractHistory() {
 
                   <td className="whitespace-nowrap px-4 py-3 2xl:px-5 2xl:py-4">
                     <span
-                      className={`inline-block rounded px-2 py-1 text-xs font-medium ${contract.status?.toLowerCase() === "active"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                        }`}
+                      className={`inline-block rounded px-2 py-1 text-xs font-medium ${
+                        contract.status?.toLowerCase() === "active"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
                     >
                       {contract.status || "—"}
                     </span>
@@ -203,10 +204,7 @@ export default function EmployeeContractHistory() {
 
             {contracts.length === 0 && (
               <tr>
-                <td
-                  colSpan={9}
-                  className="px-4 py-8 text-center text-gray-500"
-                >
+                <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
                   No inactive or terminated contracts found.
                 </td>
               </tr>
