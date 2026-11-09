@@ -18,6 +18,13 @@ export interface OtherExpense {
   updated_at?: string;
 }
 
+// ✅ show the data filtering by month.
+export interface OtherExpenseByMonthData {
+  total_amount: number;
+  count: number;
+  expenses: OtherExpense[];
+}
+
 // ✅ New Type for the Grouped 3-Month Data
 export interface OtherExpenseMonthlyGroup {
   month: number;
@@ -30,8 +37,7 @@ export interface OtherExpenseMonthlyGroup {
 
 export type CreateOtherExpenseType = Omit<
   OtherExpense,
-  "id" | "expense_id" | "category_title" | "created_at" | "updated_at"
->;
+  "id" | "expense_id" | "category_title" | "created_at" | "updated_at">;
 
 export type UpdateOtherExpenseType = Partial<CreateOtherExpenseType>;
 
@@ -54,3 +60,13 @@ export const createOtherExpense = () =>
 
 export const updateOtherExpense = () =>
   useUpdate<OtherExpense>(`${BASE_URL}/other-expenses`);
+
+export const getOtherExpensesByMonth = (
+  month: number,
+  year: number,
+  enabled = true,
+) =>
+  useFetch<OtherExpenseByMonthData>(
+    `${BASE_URL}/other-expenses/by-month?month=${month}&year=${year}`,
+    enabled,
+  );

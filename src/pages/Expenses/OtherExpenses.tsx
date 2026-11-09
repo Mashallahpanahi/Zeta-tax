@@ -1,8 +1,8 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import {
   createOtherExpense,
+  getOtherExpensesByMonth,
   getAllOtherExpenses,
-  getRecentOtherExpenses, // ✅ Import the new hook
   type CreateOtherExpenseType,
   type OtherExpense,
 } from "../../api/otherExpenseApi";
@@ -21,31 +21,68 @@ const initialForm: CreateOtherExpenseType = {
 
 export default function OtherExpensesPage() {
   const [showHistory, setShowHistory] = useState(false);
-
-  // ✅ New State: false = 3 months, true = all time
-  const [showAllExpenses, setShowAllExpenses] = useState(false);
-
+  const today = new Date();
+  const [selectedMonth, setSelectedMonth] = useState<number | "all">(
+    today.getMonth() + 1
+  );
+  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
   const [editExpense, setEditExpense] = useState<OtherExpense | null>(null);
   const [form, setForm] = useState<CreateOtherExpenseType>(initialForm);
   const [formError, setFormError] = useState("");
   const [message, setMessage] = useState("");
 
-  // ✅ 1. Fetch Recent (Enabled only when in history AND showing recent)
+  // Fetch expenses for a specific month
   const {
-    data: recentData,
-    loading: loadingRecent,
-    error: errorRecent,
-    refetch: refetchRecent,
-  } = getRecentOtherExpenses(showHistory && !showAllExpenses);
+    data: monthlyData,
+    loading: monthlyLoading,
+    error: monthlyError,
+    refetch: refetchMonthly,
+  } = getOtherExpensesByMonth(
+    selectedMonth === "all" ? 1 : selectedMonth,
+    selectedYear,
+    showHistory && selectedMonth !== "all",
+  );
 
-  // ✅ 2. Fetch All (Enabled only when in history AND showing all)
+  // Fetch all expenses when All Months is selected
   const {
-    data: allData,
-    loading: loadingAll,
-    error: errorAll,
+    data: allExpensesData,
+    loading: allLoading,
+    error: allError,
     refetch: refetchAll,
-  } = getAllOtherExpenses(showHistory && showAllExpenses);
+  } = getAllOtherExpenses(showHistory && selectedMonth === "all");
 
+  // Display expenses for the selected month or selected year
+  const displayExpenses: OtherExpense[] =
+    selectedMonth === "all"
+      ? (allExpensesData ?? []).filter(
+        (expense) =>
+          Number(expense.expense_date.slice(0, 4)) === selectedYear,
+      )
+      : monthlyData?.expenses ?? [];
+
+  // Calculate totals
+  const totalAmount =
+    selectedMonth === "all"
+      ? displayExpenses.reduce(
+        (total, expense) => total + Number(expense.amount),
+        0,
+      )
+      : monthlyData?.total_amount ?? 0;
+
+  const totalCount =
+    selectedMonth === "all"
+      ? displayExpenses.length
+      : monthlyData?.count ?? 0;
+
+  // Select the correct loading and error states
+  const historyLoading =
+    selectedMonth === "all" ? allLoading : monthlyLoading;
+
+  const historyError =
+    selectedMonth === "all" ? allError : monthlyError;
+
+  const retryHistory =
+    selectedMonth === "all" ? refetchAll : refetchMonthly;
   const {
     data: categoriesData,
     loading: loadingCategories,
@@ -53,17 +90,6 @@ export default function OtherExpensesPage() {
   } = getAllExpenseCategories();
 
   const { create, loading: saving, error: saveError } = createOtherExpense();
-
-  // ✅ 3. Determine which data, loading, error, and refetch to use
-  const loading = showAllExpenses ? loadingAll : loadingRecent;
-  const error = showAllExpenses ? errorAll : errorRecent;
-  const activeRefetch = showAllExpenses ? refetchAll : refetchRecent;
-
-  // ✅ 4. Flatten the recent data into a single array
-  const displayExpenses = useMemo(() => {
-    if (showAllExpenses) return allData ?? [];
-    return recentData?.flatMap((group) => group.data) ?? [];
-  }, [showAllExpenses, allData, recentData]);
 
   const categories = categoriesData ?? [];
 
@@ -109,22 +135,26 @@ export default function OtherExpensesPage() {
     });
 
     if (success) {
+      const expenseDate = form.expense_date.split("-").map(Number);
+
       setForm({
         ...initialForm,
         expense_date: new Date().toISOString().slice(0, 10),
       });
+
+      setSelectedYear(expenseDate[0]);
+      setSelectedMonth(expenseDate[1]);
+
       setFormError("");
       setMessage("Expense created successfully.");
       setShowHistory(true);
-      setShowAllExpenses(false); // ✅ Reset to recent view after adding
-      refetchRecent(); // ✅ Force refetch the recent list
     }
   }
 
   function handleUpdateSuccess() {
     setEditExpense(null);
     setMessage("Expense updated successfully.");
-    activeRefetch(); // ✅ Refresh the currently active view
+    retryHistory();
   }
 
   return (
@@ -323,18 +353,20 @@ export default function OtherExpensesPage() {
         </section>
       ) : (
         <OtherExpenseHistory
-          expenses={displayExpenses} // ✅ Pass flattened data
+          expenses={displayExpenses}
           categories={categories}
-          loading={loading}
-          error={error}
-          onRetry={activeRefetch}
+          loading={historyLoading}
+          error={historyError}
+          onRetry={retryHistory}
           onEdit={setEditExpense}
-          // ✅ Pass Toggle Logic
-          isShowingAll={showAllExpenses}
-          onToggleShowAll={() => setShowAllExpenses((prev) => !prev)}
+          month={selectedMonth}
+          year={selectedYear}
+          totalAmount={totalAmount}
+          totalCount={totalCount}
+          onMonthChange={setSelectedMonth}
+          onYearChange={setSelectedYear}
         />
       )}
-
       <UpdateOtherExpenseModal
         expense={editExpense}
         onClose={() => setEditExpense(null)}
