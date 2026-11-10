@@ -7,6 +7,9 @@ export interface ContractEmployee {
   registration_id: string;
   first_name: string;
   last_name: string;
+  email: string;
+  phone: string;
+  tin: string | number;
 }
 
 export interface EmployeeContract {
@@ -15,6 +18,8 @@ export interface EmployeeContract {
   base_salary: string | number;
   currency: string;
   employee?: ContractEmployee;
+  position_type: string;
+  employee_type: string;
 }
 
 export interface PayrollType {

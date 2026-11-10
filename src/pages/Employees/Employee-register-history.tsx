@@ -9,8 +9,6 @@ import ViewMoreDetailEmployeeModal from "../../components/employee/viewmoreDetai
 import ResponsivePage from "../../components/common/ResponsivePage";
 import Loader from "../../components/common/Loader";
 
-
-
 export default function EmployeeRegisterHistory() {
   const navigate = useNavigate();
 
@@ -32,7 +30,7 @@ export default function EmployeeRegisterHistory() {
   useEffect(() => {
     if (!message) return;
     setVisibleMessage(message);
-
+    console.log(visibleMessage);
     const timer = setTimeout(() => setVisibleMessage(null), 5000);
     return () => clearTimeout(timer);
   }, [message]);
@@ -143,7 +141,7 @@ export default function EmployeeRegisterHistory() {
           </thead>
 
           <tbody>
-            {allEmployees.map((emp, idx) => (
+            {allEmployees.map((emp) => (
               <tr
                 key={emp.registration_id}
                 className="border-b border-gray-100 align-top transition hover:bg-gray-50"
@@ -167,10 +165,11 @@ export default function EmployeeRegisterHistory() {
                 {/* Status badge */}
                 <td className="whitespace-nowrap px-2 py-3">
                   <span
-                    className={`inline-block rounded px-2 py-1 text-xs font-medium ${emp.status === "active"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700"
-                      }`}
+                    className={`inline-block rounded px-2 py-1 text-xs font-medium ${
+                      emp.status === "active"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
                   >
                     {emp.status || "—"}
                   </span>
@@ -232,7 +231,6 @@ export default function EmployeeRegisterHistory() {
         employee={viewEmployee}
         onClose={() => setViewEmployee(null)}
       />
-
     </ResponsivePage>
   );
 }

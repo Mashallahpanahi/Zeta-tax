@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 
 import { getAllIncomeTransactions } from "../../api/incomeTransactionApi";
 import {
-  createCashBalanceExchange,
   getAllCashBalanceExchanges,
   getRecentCashBalanceExchanges,
 } from "../../api/cashBalanceExchangeApi";
@@ -33,19 +32,13 @@ export default function ExchangeToAFNPage() {
   const [message, setMessage] = useState("");
 
   // Income (Needed for modal logic)
-  const { data: incomesData, refetch: refetchIncomes } =
-    getAllIncomeTransactions();
-  const incomes = incomesData ?? [];
-
+  const { refetch: refetchIncomes } = getAllIncomeTransactions();
   // 1. Fetch Recent (Default)
   const { data: recentData, refetch: refetchRecent } =
     getRecentCashBalanceExchanges();
 
   // 2. Fetch All
   const { data: allData, refetch: refetchAll } = getAllCashBalanceExchanges();
-
-  const { create: createExchange } = createCashBalanceExchange();
-
   // 3. ✅ Fetch the EXACT unallocated amount from the backend
   // We use the current year because the modal restricts dates to the current month
   const currentYear = new Date().getFullYear();

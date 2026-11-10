@@ -103,11 +103,6 @@ export default function ContractPage() {
     });
   }
 
-  function closeContractModal() {
-    setIsCreateOpen(false);
-    setEditContract(null);
-  }
-
   function handleContractSuccess() {
     setMessage(
       editContract

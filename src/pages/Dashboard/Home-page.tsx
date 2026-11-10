@@ -48,8 +48,6 @@ const formatCurrency = (value: number | null | undefined, currency: string) =>
   `${currency} ${formatNumber(value)}`;
 
 const HomePage = () => {
-  const [showLoader, setShowLoader] = useState(true);
-
   const [year, setYear] = useState(CURRENT_YEAR);
   const [month, setMonth] = useState<number | "all">("all");
 

@@ -18,7 +18,7 @@ export interface GetAllEmployeeType {
   email: string;
   address: string;
   national_id: string;
-  tin: string;
+  tin: number | string;
   bank_account: string;
   created_at: string;
   updated_at: string;
@@ -35,7 +35,7 @@ export interface CreateEmployeeType {
   email: string;
   address: string;
   national_id: string;
-  tin: string;
+  tin: number | string;
   bank_account: string;
 }
 
