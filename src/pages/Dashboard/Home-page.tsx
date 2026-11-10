@@ -96,9 +96,11 @@ const HomePage = () => {
 
   const exchangeIncomeAfn = report?.exchange_income.total ?? 0;
   const totalExpenses = report?.total_expense.total ?? 0;
-  const otherExpenses =
-    report?.total_expense.breakdown.other_expenses.total ?? 0;
+  const otherExpenses = report?.total_expense.breakdown.other_expenses.total ?? 0;
   const payrollExpenses = report?.total_expense.breakdown.payrolls.total ?? 0;
+
+  const officeRentExpenses = report?.total_expense.breakdown.office_rent?.total ?? 0;
+  const officeRentCount = report?.total_expense.breakdown.office_rent?.count ?? 0;
 
   const maxChartValue = Math.max(receivedUsd, allocatedUsd, 1);
 
@@ -476,10 +478,26 @@ const HomePage = () => {
             <div
               className="relative flex h-44 w-44 items-center justify-center rounded-full"
               style={{
+                // background:
+                //   totalExpenses > 0
+                //     ? `conic-gradient(#2563eb 0deg ${(otherExpenses / totalExpenses) * 360}deg, #f59e0b ${(otherExpenses / totalExpenses) * 360}deg 360deg)`
+                //     : "#e2e8f0",
+
                 background:
                   totalExpenses > 0
-                    ? `conic-gradient(#2563eb 0deg ${(otherExpenses / totalExpenses) * 360}deg, #f59e0b ${(otherExpenses / totalExpenses) * 360}deg 360deg)`
+                    ? (() => {
+                      const otherEnd = (otherExpenses / totalExpenses) * 360;
+                      const payrollEnd =
+                        ((otherExpenses + payrollExpenses) / totalExpenses) * 360;
+
+                      return `conic-gradient(
+          #2563eb 0deg ${otherEnd}deg,
+          #f59e0b ${otherEnd}deg ${payrollEnd}deg,
+          #10b981 ${payrollEnd}deg 360deg
+        )`;
+                    })()
                     : "#e2e8f0",
+
               }}
             >
               <div className="flex h-32 w-32 flex-col items-center justify-center rounded-full bg-white">
@@ -542,6 +560,40 @@ const HomePage = () => {
                 {report?.total_expense.breakdown.payrolls.count ?? 0} records
               </p>
             </div>
+
+
+            <div>
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 text-sm text-slate-600">
+                  <span className="h-3 w-3 rounded-sm bg-emerald-500" />
+                  Office Rent
+                </div>
+
+                <span className="text-sm font-semibold text-slate-900">
+                  {formatNumber(officeRentExpenses)}
+                </span>
+              </div>
+
+              <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+                <div
+                  className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                  style={{
+                    width: `${totalExpenses > 0
+                      ? (officeRentExpenses / totalExpenses) * 100
+                      : 0
+                      }%`,
+                  }}
+                />
+              </div>
+
+              <p className="mt-1 text-xs text-slate-400">
+                {officeRentCount} records
+              </p>
+            </div>
+
+
+
+
           </div>
         </article>
       </section>
@@ -611,7 +663,7 @@ const HomePage = () => {
                   Total Expenses in AFN
                 </p>
                 <p className="mt-1 text-xs text-slate-500">
-                  Other expenses and payroll
+                  Other expenses, payroll, and office rent
                 </p>
               </div>
             </div>

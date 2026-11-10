@@ -26,6 +26,7 @@ export interface HomeYearlyReport {
     breakdown: {
       other_expenses: AmountCount;
       payrolls: AmountCount;
+      office_rent: AmountCount;
     };
   };
 }

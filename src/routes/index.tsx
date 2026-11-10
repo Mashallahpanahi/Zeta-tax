@@ -13,6 +13,7 @@ import TaxPage from "../pages/Settings/tax/tax-Page";
 import TaxReportsPage from "../pages/TaxReports/TaxReports";
 import Payroll from "../pages/Employees/PayRoll";
 import PayRollHistory from "../pages/Employees/PayRollHistory";
+import OfficeRentPage from "../pages/Expenses/OfficeRent";
 
 const AppRoutes = () => (
   <BrowserRouter>
@@ -30,6 +31,7 @@ const AppRoutes = () => (
         <Route path="contract-history" element={<EmployeeContractHistory />} />
         <Route path="expense-categories" element={<ExpenseCategoryPage />} />
         <Route path="other-expenses" element={<OtherExpensesPage />} />
+        <Route path="office-rent" element={<OfficeRentPage />} />
         <Route path="exchange-to-afn" element={<ExchangeToAFNPage />} />
         <Route path="settings-tax" element={<TaxPage />} />
         <Route path="tax-reports" element={<TaxReportsPage />} />
