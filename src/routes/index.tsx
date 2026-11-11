@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { HashRouter, Route, Routes } from "react-router-dom";
 import DashboardLayout from "../components/layout/DashboardLayout/DashboardLayout";
 import HomePage from "../pages/Dashboard/Home-page";
 import EmployeesPage from "../pages/Employees/Register";
@@ -15,7 +15,7 @@ import Payroll from "../pages/Employees/PayRoll";
 import PayRollHistory from "../pages/Employees/PayRollHistory";
 
 const AppRoutes = () => (
-  <BrowserRouter>
+  <HashRouter>
     <Routes>
       <Route element={<DashboardLayout />}>
         <Route path="/" element={<HomePage />} />
@@ -36,7 +36,7 @@ const AppRoutes = () => (
         <Route path="payroll-history" element={<PayRollHistory />} />
       </Route>
     </Routes>
-  </BrowserRouter>
+  </HashRouter>
 );
 
 export default AppRoutes;
