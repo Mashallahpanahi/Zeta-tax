@@ -31,7 +31,7 @@ const parseTax = (value: string) =>
 const initialForm = {
     amount: "",
     date: today(),
-    paid: false,
+    paid: true,
 };
 
 const OfficeRentPage = () => {
@@ -79,7 +79,7 @@ const OfficeRentPage = () => {
         taxReady && amount > 0
             ? parseTax(rentTaxResult.tax)
             : 0;
-    const finalPayment = amount + taxAmount;
+    const finalPayment = amount - taxAmount;
     const rents = rentsQuery.data ?? [];
     const filteredRents = useMemo(() => {
         return rents
@@ -141,7 +141,7 @@ const OfficeRentPage = () => {
             amount_af: amount,
             date: form.date,
             tax_amount_af: latestTaxAmount,
-            final_pay_af: amount + latestTaxAmount,
+            final_pay_af: amount - latestTaxAmount,
             paid: form.paid,
         };
 

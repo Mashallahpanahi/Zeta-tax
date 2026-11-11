@@ -84,7 +84,7 @@ const OfficeRentEditModal = ({
             ? parseTax(taxResult.tax)
             : 0;
 
-    const finalPayment = numericAmount + taxAmount;
+    const finalPayment = numericAmount - taxAmount;
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -119,7 +119,7 @@ const OfficeRentEditModal = ({
             amount_af: numericAmount,
             date,
             tax_amount_af: latestTaxAmount,
-            final_pay_af: numericAmount + latestTaxAmount,
+            final_pay_af: numericAmount - latestTaxAmount,
             paid,
         };
 
