@@ -111,6 +111,11 @@ const Sidebar = () => {
           label: "Other Expense",
           icon: <TbReceipt />,
         },
+        {
+          path: "/office-rent",
+          label: "Office Rent",
+          icon: <TbReceipt />,
+        },
       ],
     },
     {
