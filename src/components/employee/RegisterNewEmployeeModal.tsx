@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createEmployee, type CreateEmployeeType } from "../../api/employeeApi";
-import ResponsivePage from "../common/ResponsivePage";
 // ✅ status is always "active" by default for new registrations
 const emptyForm: CreateEmployeeType = {
   first_name: "",

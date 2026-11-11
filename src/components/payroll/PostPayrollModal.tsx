@@ -17,7 +17,6 @@ export default function PostPayrollModal({
   isOpen,
   contract,
   date,
-  defaultExRate,
   onClose,
   onSuccess,
 }: Props) {
@@ -79,14 +78,14 @@ export default function PostPayrollModal({
     const payload = {
       contract_id: contract.contract_id,
       base_salary: baseSalary,
-      salary_usd: baseSalary,             // Matches your example JSON exactly
-      salary_afn: totalAFN,               // Calculated from (base + overtime) * rate
+      salary_usd: baseSalary, // Matches your example JSON exactly
+      salary_afn: totalAFN, // Calculated from (base + overtime) * rate
       ex_rate: rateNum,
       overtime_bonus: bonus,
       date: date,
-      tax: taxAmountAFN,                  // Send AFN value
-      final_salary: finalSalaryAFN,       // Send AFN value
-      pay_status: true,                   // (Change to false if your backend expects it false initially)
+      tax: taxAmountAFN, // Send AFN value
+      final_salary: finalSalaryAFN, // Send AFN value
+      pay_status: true, // (Change to false if your backend expects it false initially)
     };
 
     const success = await create(payload);

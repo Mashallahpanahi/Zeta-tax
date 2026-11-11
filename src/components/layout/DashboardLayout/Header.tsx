@@ -1,7 +1,5 @@
 
-
-import React from "react";
-import { FaSearch, FaRegBell } from "react-icons/fa";
+import { FaRegBell, FaSearch } from "react-icons/fa";
 
 const Header = () => {
   return (

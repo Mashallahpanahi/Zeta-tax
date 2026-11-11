@@ -3,16 +3,15 @@ import {
   getActiveContracts,
   getAllRegisteredEmployees,
   updateContract,
-  type Employee,
   type EmployeeContract,
 } from "../../api/employeeContractApi";
 
-import CreateEmployeeContractModal from "../../components/employee/CreateEmployeeContractModal";
-import UpdateEmployeeContractModal from "../../components/employee/UpdateEmployeeContractModal";
-import EmployeeContractDetailsModal from "../../components/employee/EmployeeContractDetailsModal";
 import { useNavigate } from "react-router-dom";
-import ResponsivePage from "../../components/common/ResponsivePage";
 import Loader from "../../components/common/Loader";
+import ResponsivePage from "../../components/common/ResponsivePage";
+import CreateEmployeeContractModal from "../../components/employee/CreateEmployeeContractModal";
+import EmployeeContractDetailsModal from "../../components/employee/EmployeeContractDetailsModal";
+import UpdateEmployeeContractModal from "../../components/employee/UpdateEmployeeContractModal";
 
 export default function ContractPage() {
   const {
@@ -104,11 +103,6 @@ export default function ContractPage() {
     });
   }
 
-  function closeContractModal() {
-    setIsCreateOpen(false);
-    setEditContract(null);
-  }
-
   function handleContractSuccess() {
     setMessage(
       editContract
@@ -146,7 +140,6 @@ export default function ContractPage() {
 
   return (
     <ResponsivePage>
-
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-xl font-bold">Employee Contracts</h1>
 
@@ -216,7 +209,9 @@ export default function ContractPage() {
                   key={id ?? index}
                   className="border-b border-gray-100 transition hover:bg-blue-50"
                 >
-                  <td className="whitespace-nowrap px-4 py-4 text-sm 2xl:px-5 2xl:py-5">{id ?? "—"}</td>
+                  <td className="whitespace-nowrap px-4 py-4 text-sm 2xl:px-5 2xl:py-5">
+                    {id ?? "—"}
+                  </td>
 
                   <td className="whitespace-nowrap px-4 py-4 text-sm 2xl:px-5 2xl:py-5">
                     {employee?.first_name ?? "—"}
@@ -291,11 +286,11 @@ export default function ContractPage() {
         employeeName={
           editContract
             ? [
-              getEmployee(editContract)?.first_name,
-              getEmployee(editContract)?.last_name,
-            ]
-              .filter(Boolean)
-              .join(" ") || "Employee not found"
+                getEmployee(editContract)?.first_name,
+                getEmployee(editContract)?.last_name,
+              ]
+                .filter(Boolean)
+                .join(" ") || "Employee not found"
             : ""
         }
         onClose={() => setEditContract(null)}
@@ -308,16 +303,15 @@ export default function ContractPage() {
         employeeName={
           viewContract
             ? [
-              getEmployee(viewContract)?.first_name,
-              getEmployee(viewContract)?.last_name,
-            ]
-              .filter(Boolean)
-              .join(" ") || "Unknown employee"
+                getEmployee(viewContract)?.first_name,
+                getEmployee(viewContract)?.last_name,
+              ]
+                .filter(Boolean)
+                .join(" ") || "Unknown employee"
             : "Unknown employee"
         }
         onClose={() => setViewContract(null)}
       />
-
     </ResponsivePage>
   );
 }

@@ -34,7 +34,7 @@ export default function UpdateEmployeeModal({
         email: employee.email,
         address: employee.address,
         national_id: employee.national_id,
-        tin: employee.tin,
+        tin: Number(employee.tin) || 0,
         bank_account: employee.bank_account,
       });
     }

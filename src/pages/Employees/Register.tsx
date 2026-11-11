@@ -11,7 +11,6 @@ import UpdateEmployeeModal from "../../components/employee/UpdateEmployeeModal";
 import ViewMoreDetailEmployeeModal from "../../components/employee/viewmoreDetailEmployeeModal";
 import ResponsivePage from "../../components/common/ResponsivePage";
 
-
 export default function RegisteredNewEmployeePage() {
   const navigate = useNavigate();
 
@@ -95,9 +94,9 @@ export default function RegisteredNewEmployeePage() {
           <div className="flex flex-wrap items-baseline gap-3">
             <h1 className="text-xl font-bold text-black">Active Employees</h1>
 
-            {/* {visibleMessage && (
+            {visibleMessage && (
               <p className="text-sm text-green-600">{visibleMessage}</p>
-            )} */}
+            )}
           </div>
 
           <p className="mt-1 text-sm text-gray-500">
@@ -147,7 +146,7 @@ export default function RegisteredNewEmployeePage() {
           </thead>
 
           <tbody>
-            {activeEmployees.map((emp, idx) => (
+            {activeEmployees.map((emp) => (
               <tr
                 key={emp.registration_id}
                 className="border-b border-gray-100 align-top transition hover:bg-gray-50"

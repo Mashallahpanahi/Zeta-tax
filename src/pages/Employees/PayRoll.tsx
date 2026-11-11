@@ -62,7 +62,6 @@ export default function PayrollPage() {
   const {
     data: contracts,
     loading: loadingContracts,
-    error: contractsError,
     refetch: refetchContracts,
   } = getActiveContracts(month, year);
 
