@@ -160,7 +160,9 @@ const OfficeRentPage = () => {
     try {
       const success = await createMutation.create(payload);
       if (success) {
-        setSuccessMessage("Office rent created successfully.");
+        setSuccessMessage(
+          createMutation.message || "Office rent created successfully.",
+        );
         resetForm();
         await rentsQuery.refetch();
       } else {
