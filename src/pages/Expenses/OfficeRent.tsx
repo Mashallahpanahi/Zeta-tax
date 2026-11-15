@@ -7,6 +7,7 @@ import {
   type OfficeRentPayload,
 } from "../../api/officeRentApi";
 import { loadTaxRates, calculateRentTax } from "../../utils/calculateTax";
+import { formatNumber as formatNumberUtil } from "../../utils/formatNumber";
 import { FaPlus, FaSyncAlt } from "react-icons/fa";
 import OfficeRentEditModal from "../../components/expenses/OfficeRentEditModal";
 
@@ -83,6 +84,7 @@ const OfficeRentPage = () => {
   const amount = Number(form.amount) || 0;
   const rentTaxResult = calculateRentTax(amount);
   const taxAmount = taxReady && amount > 0 ? parseTax(rentTaxResult.tax) : 0;
+  const taxRate = taxReady && amount > 0 ? rentTaxResult.taxRate : 0;
   const finalPayment = amount - taxAmount;
   const rents = rentsQuery.data ?? [];
   const filteredRents = useMemo(() => {
@@ -236,16 +238,17 @@ const OfficeRentPage = () => {
 
               <input
                 id="rent-amount"
-                type="number"
-                min="0.01"
-                step="0.01"
-                value={form.amount}
-                onChange={(event) =>
-                  setForm((previous) => ({
-                    ...previous,
-                    amount: event.target.value,
-                  }))
-                }
+                type="text"
+                value={form.amount ? formatNumberUtil(Number(form.amount)) : ""}
+                onChange={(event) => {
+                  const rawValue = event.target.value.replace(/,/g, "");
+                  if (rawValue === "" || /^\d*\.?\d*$/.test(rawValue)) {
+                    setForm((previous) => ({
+                      ...previous,
+                      amount: rawValue,
+                    }));
+                  }
+                }}
                 placeholder="Enter rent amount"
                 required
                 className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
@@ -279,11 +282,18 @@ const OfficeRentPage = () => {
           </div>
 
           {/* Tax calculation preview */}
-          <div className="grid grid-cols-1 gap-4 rounded-xl bg-slate-50 p-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 rounded-xl bg-slate-50 p-4 sm:grid-cols-4">
             <div>
               <p className="text-xs font-medium text-slate-500">Rent Amount</p>
               <p className="mt-1 text-lg font-bold text-slate-900">
                 AFN {formatNumber(amount)}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium text-slate-500">Tax Rate</p>
+              <p className="mt-1 text-lg font-bold text-blue-600">
+                {formatNumber(taxRate)}%
               </p>
             </div>
 
