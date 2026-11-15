@@ -164,10 +164,8 @@ const OfficeRentPage = () => {
         resetForm();
         await rentsQuery.refetch();
       } else {
-        setFormError(
-          createMutation.message ||
-            "Unable to create office rent, you can choose only current month and year",
-        );
+        // ✅ Show the exact backend error message
+        setFormError(createMutation.error || "Unable to create office rent.");
       }
     } catch {
       setFormError("Something went wrong. Please try again.");
