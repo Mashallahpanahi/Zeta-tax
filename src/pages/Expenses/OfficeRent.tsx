@@ -18,6 +18,14 @@ const today = () => {
 
   return `${year}-${month}-${day}`;
 };
+const now = new Date();
+const currentYear = now.getFullYear();
+const currentMonth = now.getMonth() + 1;
+const pad = (n: number) => String(n).padStart(2, "0");
+const firstDayOfMonth = `${currentYear}-${pad(currentMonth)}-01`;
+const lastDayOfMonth = `${currentYear}-${pad(currentMonth)}-${pad(
+  new Date(currentYear, currentMonth, 0).getDate(),
+)}`;
 
 const formatNumber = (value: number | string | null | undefined) =>
   Number(value ?? 0).toLocaleString("en-US", {
@@ -115,10 +123,19 @@ const OfficeRentPage = () => {
       return;
     }
 
+    // --- ADD THIS VALIDATION ---
+    if (form.date < firstDayOfMonth || form.date > lastDayOfMonth) {
+      setFormError("Rent date must be within the current month.");
+      return;
+    }
+    // ---------------------------
+
     if (!taxReady) {
       setFormError("Tax rates are not ready. Please wait or reload the page.");
       return;
     }
+
+    // ... rest of your code ...
 
     // Reload the latest rates through the existing utility.
     try {
@@ -207,7 +224,7 @@ const OfficeRentPage = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} noValidate className="space-y-5">
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <div>
               <label
@@ -247,6 +264,8 @@ const OfficeRentPage = () => {
                 id="rent-date"
                 type="date"
                 value={form.date}
+                min={firstDayOfMonth}
+                max={lastDayOfMonth}
                 onChange={(event) =>
                   setForm((previous) => ({
                     ...previous,
