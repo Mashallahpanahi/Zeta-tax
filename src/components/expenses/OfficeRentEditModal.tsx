@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import type { OfficeRent, OfficeRentPayload } from "../../api/officeRentApi";
 import { updateOfficeRent } from "../../api/officeRentApi";
 import { calculateRentTax, loadTaxRates } from "../../utils/calculateTax";
+import { formatNumber as formatNumberUtil } from "../../utils/formatNumber";
 import { FaTimes, FaSave } from "react-icons/fa";
 
 interface OfficeRentEditModalProps {
@@ -29,6 +30,7 @@ const OfficeRentEditModal = ({
     const updateMutation = updateOfficeRent();
 
     const [amount, setAmount] = useState("");
+    const [amountDisplay, setAmountDisplay] = useState("");
     const [date, setDate] = useState("");
     const [paid, setPaid] = useState(false);
     const [taxReady, setTaxReady] = useState(false);
@@ -38,7 +40,9 @@ const OfficeRentEditModal = ({
     useEffect(() => {
         if (!isOpen || !rent) return;
 
+        const initialAmount = Number(rent.amount_af) || 0;
         setAmount(String(rent.amount_af ?? ""));
+        setAmountDisplay(initialAmount ? formatNumberUtil(initialAmount) : "");
         setDate(String(rent.date).slice(0, 10));
         setPaid(Boolean(rent.paid));
         setError("");
@@ -85,6 +89,20 @@ const OfficeRentEditModal = ({
             : 0;
 
     const finalPayment = numericAmount - taxAmount;
+
+    const handleAmountChange = (val: string) => {
+        const rawValue = val.replace(/,/g, "");
+        
+        // Regex allows only numbers and a single optional decimal point
+        if (rawValue === "" || /^\d*\.?\d*$/.test(rawValue)) {
+            // Format the integer part with commas, but preserve the decimal part
+            const parts = rawValue.split(".");
+            parts[0] = formatNumberUtil(Number(parts[0]) || 0);
+            
+            setAmountDisplay(parts.join("."));
+            setAmount(rawValue);
+        }
+    };
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -200,14 +218,10 @@ const OfficeRentEditModal = ({
 
                         <input
                             id="edit-rent-amount"
-                            type="number"
-                            min="0.01"
-                            step="0.01"
+                            type="text"
                             required
-                            value={amount}
-                            onChange={(event) =>
-                                setAmount(event.target.value)
-                            }
+                            value={amountDisplay}
+                            onChange={(event) => handleAmountChange(event.target.value)}
                             className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                         />
                     </div>
