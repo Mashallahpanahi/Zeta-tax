@@ -18,12 +18,20 @@ const initialForm: CreateOtherExpenseType = {
   expense_date: new Date().toISOString().slice(0, 10),
   note: "",
 };
+const now = new Date();
+const pad = (n: number) => String(n).padStart(2, "0");
+const year = now.getFullYear();
+const month = now.getMonth() + 1; // 1–12
+const firstDayOfMonth = `${year}-${pad(month)}-01`;
+const lastDayOfMonth = `${year}-${pad(month)}-${pad(
+  new Date(year, month, 0).getDate(), // day 0 of next month = last day of this month
+)}`;
 
 export default function OtherExpensesPage() {
   const [showHistory, setShowHistory] = useState(false);
   const today = new Date();
   const [selectedMonth, setSelectedMonth] = useState<number | "all">(
-    today.getMonth() + 1
+    today.getMonth() + 1,
   );
   const [selectedYear, setSelectedYear] = useState(today.getFullYear());
   const [editExpense, setEditExpense] = useState<OtherExpense | null>(null);
@@ -55,34 +63,31 @@ export default function OtherExpensesPage() {
   const displayExpenses: OtherExpense[] =
     selectedMonth === "all"
       ? (allExpensesData ?? []).filter(
-        (expense) =>
-          Number(expense.expense_date.slice(0, 4)) === selectedYear,
-      )
-      : monthlyData?.expenses ?? [];
+          (expense) =>
+            Number(expense.expense_date.slice(0, 4)) === selectedYear,
+        )
+      : (monthlyData?.expenses ?? []);
 
   // Calculate totals
   const totalAmount =
     selectedMonth === "all"
       ? displayExpenses.reduce(
-        (total, expense) => total + Number(expense.amount),
-        0,
-      )
-      : monthlyData?.total_amount ?? 0;
+          (total, expense) => total + Number(expense.amount),
+          0,
+        )
+      : (monthlyData?.total_amount ?? 0);
 
   const totalCount =
     selectedMonth === "all"
       ? displayExpenses.length
-      : monthlyData?.count ?? 0;
+      : (monthlyData?.count ?? 0);
 
   // Select the correct loading and error states
-  const historyLoading =
-    selectedMonth === "all" ? allLoading : monthlyLoading;
+  const historyLoading = selectedMonth === "all" ? allLoading : monthlyLoading;
 
-  const historyError =
-    selectedMonth === "all" ? allError : monthlyError;
+  const historyError = selectedMonth === "all" ? allError : monthlyError;
 
-  const retryHistory =
-    selectedMonth === "all" ? refetchAll : refetchMonthly;
+  const retryHistory = selectedMonth === "all" ? refetchAll : refetchMonthly;
   const {
     data: categoriesData,
     loading: loadingCategories,
@@ -112,6 +117,13 @@ export default function OtherExpensesPage() {
     setFormError("");
     setMessage("");
 
+    if (
+      form.expense_date < firstDayOfMonth ||
+      form.expense_date > lastDayOfMonth
+    ) {
+      setFormError("Expense date must be within the current month.");
+      return;
+    }
     if (!form.description.trim()) {
       setFormError("Description is required.");
       return;
@@ -147,7 +159,6 @@ export default function OtherExpensesPage() {
 
       setFormError("");
       setMessage("Expense created successfully.");
-      setShowHistory(true);
     }
   }
 
@@ -180,7 +191,7 @@ export default function OtherExpensesPage() {
               Enter the details of your business expense.
             </p>
           </div>
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form onSubmit={handleSubmit} noValidate className="space-y-3">
             <div>
               <label
                 htmlFor="expense-description"
@@ -278,6 +289,24 @@ export default function OtherExpensesPage() {
                 )}
               </div>
 
+              {/* <div>
+                <label
+                  htmlFor="expense-date"
+                  className="mb-1 block text-sm font-medium text-gray-700"
+                >
+                  Expense Date
+                </label>
+                <input
+                  id="expense-date"
+                  required
+                  type="date"
+                  value={form.expense_date}
+                  onChange={(event) =>
+                    handleChange("expense_date", event.target.value)
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-firstRate"
+                />
+              </div> */}
               <div>
                 <label
                   htmlFor="expense-date"
@@ -290,6 +319,8 @@ export default function OtherExpensesPage() {
                   required
                   type="date"
                   value={form.expense_date}
+                  min={firstDayOfMonth}
+                  max={lastDayOfMonth}
                   onChange={(event) =>
                     handleChange("expense_date", event.target.value)
                   }
