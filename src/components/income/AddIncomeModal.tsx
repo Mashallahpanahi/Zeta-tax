@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { createIncomeTransaction } from "../../api/incomeTransactionApi";
 import IncomeFormFields, { createEmptyForm, type IncomeForm } from "./IncomeFormFields";
-
 interface Props {
   isOpen: boolean;
   onClose: () => void;
@@ -26,7 +25,7 @@ export default function AddIncomeModal({ isOpen, onClose, onSuccess }: Props) {
 
     const payload = {
       date: form.date,
-      amount: Number(form.amount),
+      amount: Number(form.amount.replace(/,/g, "")),
       currency: form.currency,
       recorded_by: form.recorded_by.trim(),
       received_from: form.received_from.trim(),

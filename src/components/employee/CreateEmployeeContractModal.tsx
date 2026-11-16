@@ -5,7 +5,7 @@ import {
   type Employee,
   type CreateEmployeeContractType,
 } from "../../api/employeeContractApi";
-
+import { formatNumber } from "../../utils/formatNumber";
 interface Props {
   isOpen: boolean;
   onClose: () => void;

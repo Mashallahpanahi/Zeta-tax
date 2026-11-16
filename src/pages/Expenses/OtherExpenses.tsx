@@ -9,6 +9,7 @@ import {
 import { getAllExpenseCategories } from "../../api/expenseCategoryApi";
 import UpdateOtherExpenseModal from "../../components/expenses/UpdateOtherExpenseModal";
 import OtherExpenseHistory from "../../components/expenses/OtherExpenseHistory";
+import { formatNumber } from "../../utils/formatNumber";
 
 const initialForm: CreateOtherExpenseType = {
   description: "",
@@ -39,6 +40,23 @@ export default function OtherExpensesPage() {
   const [formError, setFormError] = useState("");
   const [message, setMessage] = useState("");
 
+  // formatting helper
+  const formatInputValue = (value: string) => {
+    const cleanValue = value.replace(/,/g, "").replace(/[^\d.]/g, "");
+    const parts = cleanValue.split(".");
+    const integerPart = parts[0];
+    const decimalPart = parts.slice(1).join("");
+    if (!integerPart && !cleanValue.includes(".")) return "";
+
+    const formattedInteger = integerPart
+      ? formatNumber(Number(integerPart))
+      : "";
+
+    return cleanValue.includes(".")
+      ? `${formattedInteger}.${decimalPart}`
+      : formattedInteger;
+  };
+  const [amountInput, setAmountInput] = useState("");
   // Fetch expenses for a specific month
   const {
     data: monthlyData,
@@ -105,10 +123,22 @@ export default function OtherExpensesPage() {
   }, [message]);
 
   function handleChange(field: keyof CreateOtherExpenseType, value: string) {
+    if (field === "amount") {
+      const formattedValue = formatInputValue(value);
+
+      setAmountInput(formattedValue);
+
+      setForm((current) => ({
+        ...current,
+        amount: Number(formattedValue.replace(/,/g, "")) || 0,
+      }));
+
+      return;
+    }
+
     setForm((current) => ({
       ...current,
-      [field]:
-        field === "amount" || field === "category_id" ? Number(value) : value,
+      [field]: field === "category_id" ? Number(value) : value,
     }));
   }
 
@@ -153,6 +183,7 @@ export default function OtherExpensesPage() {
         ...initialForm,
         expense_date: new Date().toISOString().slice(0, 10),
       });
+      setAmountInput("");
 
       setSelectedYear(expenseDate[0]);
       setSelectedMonth(expenseDate[1]);
@@ -222,10 +253,9 @@ export default function OtherExpensesPage() {
                 <input
                   id="expense-amount"
                   required
-                  type="number"
-                  min="0.01"
-                  step="0.01"
-                  value={form.amount || ""}
+                  type="text"
+                  inputMode="decimal"
+                  value={amountInput}
                   onChange={(event) =>
                     handleChange("amount", event.target.value)
                   }

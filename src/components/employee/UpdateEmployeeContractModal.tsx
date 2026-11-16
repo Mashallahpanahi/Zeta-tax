@@ -5,7 +5,7 @@ import {
     type EmployeeContract,
     type CreateEmployeeContractType,
 } from "../../api/employeeContractApi";
-
+import { formatNumber } from "../../utils/formatNumber";
 interface Props {
     isOpen: boolean;
     contract: EmployeeContract | null;
@@ -49,7 +49,9 @@ export default function UpdateEmployeeContractModal({
             termination_date: contract.termination_date?.slice(0, 10) ?? "",
             status: contract.status ?? "Active",
             position_type: contract.position_type ?? "Permanent",
-            base_salary: String(contract.base_salary ?? ""),
+            base_salary: contract.base_salary != null
+                ? formatNumber(Number(contract.base_salary))
+                : "",
             currency: contract.currency ?? "USD",
             employee_type: contract.employee_type ?? "Full-time",
         });
@@ -59,6 +61,27 @@ export default function UpdateEmployeeContractModal({
         event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
     ) {
         const { name, value } = event.target;
+
+        if (name === "base_salary") {
+            const cleanValue = value.replace(/,/g, "").replace(/[^\d.]/g, "");
+            const [integerPart, ...decimalParts] = cleanValue.split(".");
+            const decimalPart = decimalParts.join("");
+
+            const formattedInteger = integerPart
+                ? formatNumber(Number(integerPart))
+                : "";
+
+            const formattedValue = cleanValue.includes(".")
+                ? `${formattedInteger}.${decimalPart}`
+                : formattedInteger;
+
+            setForm((previous) => ({
+                ...previous,
+                [name]: formattedValue,
+            }));
+
+            return;
+        }
 
         setForm((previous) => ({
             ...previous,
@@ -87,7 +110,7 @@ export default function UpdateEmployeeContractModal({
             return;
         }
 
-        const salary = Number(form.base_salary);
+        const salary = Number(form.base_salary.replace(/,/g, ""));
 
         if (!Number.isFinite(salary) || salary < 0) {
             setFormError("Please enter a valid, non-negative salary.");
@@ -272,9 +295,8 @@ export default function UpdateEmployeeContractModal({
                             <input
                                 id="update_base_salary"
                                 name="base_salary"
-                                type="number"
-                                min="0"
-                                step="any"
+                                type="text"
+                                inputMode="decimal"
                                 value={form.base_salary}
                                 onChange={handleChange}
                                 required

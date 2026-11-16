@@ -135,11 +135,12 @@ export default function PostPayrollModal({
               Base Salary (USD)
             </label>
             <input
-              type="number"
-              min="0"
-              step="0.01"
-              value={baseSalaryInput}
-              onChange={(e) => setBaseSalaryInput(e.target.value)}
+              type="text"
+              inputMode="decimal"
+              value={formatNumber(Number(baseSalaryInput) || 0)}
+              onChange={(e) =>
+                setBaseSalaryInput(e.target.value.replace(/,/g, ""))
+              }
               className="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:border-blue-firstRate font-semibold"
             />
           </div>

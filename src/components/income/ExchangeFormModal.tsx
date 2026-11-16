@@ -30,6 +30,24 @@ export default function ExchangeFormModal({
   const [date, setDate] = useState(getTodayLocal());
   const [localSuccessMessage, setLocalSuccessMessage] = useState("");
 
+  const formatInputValue = (value: string) => {
+    const cleanValue = value.replace(/,/g, "").replace(/[^\d.]/g, "");
+
+    const parts = cleanValue.split(".");
+    const integerPart = parts[0];
+    const decimalPart = parts.slice(1).join("");
+
+    if (!integerPart && !cleanValue.includes(".")) return "";
+
+    const formattedInteger = integerPart
+      ? formatNumber(Number(integerPart))
+      : "";
+
+    return cleanValue.includes(".")
+      ? `${formattedInteger}.${decimalPart}`
+      : formattedInteger;
+  };
+  // API hooks
   const { create, loading: saving, error } = createCashBalanceExchange();
   const { data: latestBalance } = getLatestBalance();
 
@@ -70,8 +88,8 @@ export default function ExchangeFormModal({
   };
 
   // Calculations
-  const amountUSD = Number(amountInput);
-  const rate = Number(rateInput);
+  const amountUSD = Number(amountInput.replace(/,/g, ""));
+  const rate = Number(rateInput.replace(/,/g, ""));
 
   const validAmount =
     amountInput.trim() !== "" &&
@@ -179,12 +197,10 @@ export default function ExchangeFormModal({
               Max available: ${formatNumber(maxUnallocatedUSD)}
             </p>
             <input
-              type="number"
-              min="0.01"
-              max={maxUnallocatedUSD}
-              step="0.01"
+              type="text"
+              inputMode="decimal"
               value={amountInput}
-              onChange={(e) => setAmountInput(e.target.value)}
+              onChange={(e) => setAmountInput(formatInputValue(e.target.value))}
               placeholder="Enter amount in USD"
               required
               className="w-full rounded-md border border-gray-300 p-2.5 text-gray-900 focus:border-blue-firstRate outline-none"
@@ -219,11 +235,10 @@ export default function ExchangeFormModal({
               Exchange Rate (AFN per USD)
             </label>
             <input
-              type="number"
-              min="0.01"
-              step="0.01"
+              type="text"
+              inputMode="decimal"
               value={rateInput}
-              onChange={(e) => setRateInput(e.target.value)}
+              onChange={(e) => setRateInput(formatInputValue(e.target.value))}
               placeholder="Enter exchange rate"
               required
               className="w-full rounded-md border border-gray-300 p-2.5 text-gray-900 focus:border-blue-firstRate outline-none"
