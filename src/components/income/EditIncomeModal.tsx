@@ -43,15 +43,21 @@ export default function EditIncomeModal({ isOpen, transaction, onClose, onSucces
       return;
     }
 
-    if (!form.amount || Number(form.amount) <= 0) {
-      setLocalError("Please enter an amount greater than zero.");
+    const cleanAmount = form.amount.replace(/,/g, "").trim();
+    const amount = Number(cleanAmount);
+
+    if (
+      !cleanAmount ||
+      !Number.isFinite(amount) ||
+      amount <= 0
+    ) {
+      setLocalError("Please enter a valid amount greater than zero.");
       return;
     }
-
     const payload = {
       ...transaction,
       date: form.date,
-      amount: Number(form.amount),
+      amount: amount,
       currency: form.currency,
       recorded_by: form.recorded_by.trim(),
       received_from: form.received_from.trim(),

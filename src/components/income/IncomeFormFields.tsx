@@ -7,6 +7,7 @@ export type IncomeForm = {
   income_type: string;
   description: string;
 };
+import { formatNumber } from "../../utils/formatNumber";
 
 export const createEmptyForm = (): IncomeForm => ({
   date: new Date().toISOString().slice(0, 10),
@@ -47,11 +48,26 @@ export default function IncomeFormFields({ form, onChange }: Props) {
             Amount
           </label>
           <input
-            type="number"
-            min="0.01"
-            step="0.01"
-            value={form.amount}
-            onChange={(e) => onChange("amount", e.target.value)}
+            type="text"
+            inputMode="decimal"
+            value={
+              form.amount && !form.amount.includes(",")
+                ? formatNumber(Number(form.amount))
+                : form.amount
+            }
+            onChange={(e) => {
+              const value = e.target.value.replace(/,/g, "");
+              if (value === "") {
+                onChange("amount", "");
+                return;
+              }
+              const [integerPart, decimalPart] = value.split(".");
+              const formattedValue = value.includes(".")
+                ? `${integerPart ? formatNumber(Number(integerPart)) : ""}.${decimalPart ?? ""}`
+                : formatNumber(Number(value));
+
+              onChange("amount", formattedValue);
+            }}
             placeholder="Enter amount"
             required
             className={fieldClass()}

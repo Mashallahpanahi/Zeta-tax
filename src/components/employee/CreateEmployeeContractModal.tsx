@@ -6,7 +6,7 @@ import {
     type Employee,
     type CreateEmployeeContractType,
 } from "../../api/employeeContractApi";
-
+import { formatNumber } from "../../utils/formatNumber";
 interface Props {
     isOpen: boolean;
     onClose: () => void;
@@ -51,6 +51,27 @@ export default function CreateEmployeeContractModal({
     ) {
         const { name, value } = event.target;
 
+        if (name === "base_salary") {
+            const cleanValue = value.replace(/,/g, "").replace(/[^\d.]/g, "");
+            const [integerPart, ...decimalParts] = cleanValue.split(".");
+            const decimalPart = decimalParts.join("");
+
+            const formattedInteger = integerPart
+                ? formatNumber(Number(integerPart))
+                : "";
+
+            const formattedValue = cleanValue.includes(".")
+                ? `${formattedInteger}.${decimalPart}`
+                : formattedInteger;
+
+            setForm((previous) => ({
+                ...previous,
+                [name]: formattedValue,
+            }));
+
+            return;
+        }
+
         setForm((previous) => ({
             ...previous,
             [name]: value,
@@ -70,7 +91,7 @@ export default function CreateEmployeeContractModal({
             return;
         }
 
-        const salary = Number(form.base_salary);
+        const salary = Number(form.base_salary.replace(/,/g, ""));
 
         if (!Number.isFinite(salary) || salary < 0) {
             setFormError("Please enter a valid, non-negative salary.");
@@ -288,9 +309,8 @@ export default function CreateEmployeeContractModal({
                             <input
                                 id="create_base_salary"
                                 name="base_salary"
-                                type="number"
-                                min="0"
-                                step="any"
+                                type="text"
+                                inputMode="decimal"
                                 value={form.base_salary}
                                 onChange={handleChange}
                                 required

@@ -6,6 +6,7 @@ import {
     type UpdateOtherExpenseType,
 } from "../../api/otherExpenseApi";
 import { getAllExpenseCategories } from "../../api/expenseCategoryApi";
+import { formatNumber } from "../../utils/formatNumber";
 
 interface Props {
     expense: OtherExpense | null;
@@ -130,11 +131,19 @@ export default function UpdateOtherExpenseModal({
                             </label>
                             <input
                                 required
-                                type="number"
-                                min="0.01"
-                                step="0.01"
-                                value={form.amount || ""}
-                                onChange={(event) => handleChange("amount", event.target.value)}
+                                type="text"
+                                inputMode="decimal"
+                                value={
+                                    form.amount
+                                        ? formatNumber(Number(form.amount))
+                                        : ""
+                                }
+                                onChange={(event) => {
+                                    const value = event.target.value.replace(/,/g, "");
+
+                                    handleChange("amount", value);
+                                }}
+                                placeholder="Enter amount"
                                 className="w-full rounded-lg border border-gray-300 px-3 py-2"
                             />
                         </div>
