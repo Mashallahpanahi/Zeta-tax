@@ -39,6 +39,25 @@ export interface CreateEmployeeType {
   bank_account: string;
 }
 
+// ---------- Birthday Types ----------
+
+export interface EmployeeBirthdayType {
+  registration_id: string;
+  first_name: string;
+  last_name: string;
+  date_of_birth: string;
+  birthday_day: number;
+  status: string;
+}
+
+export interface EmployeeBirthdaysData {
+  month: number;
+  year: number;
+  count: number;
+  employees: EmployeeBirthdayType[];
+}
+
+
 // Type for updating — everything optional
 export type UpdateEmployeeType = Partial<CreateEmployeeType>;
 
@@ -60,3 +79,15 @@ export const updateEmployee = () =>
 
 // ---------- DELETE ----------
 export const deleteEmployee = () => useDelete(`${BASE_URL}/employee-register`);
+
+// ---------- BIRTHDAY NOTIFICATIONS ----------
+
+export const useEmployeeBirthdays = (
+  month: number,
+  year: number,
+  enabled = true,
+) =>
+  useFetch<EmployeeBirthdaysData>(
+    `${BASE_URL}/employee-register/birthdays?month=${month}&year=${year}`,
+    enabled,
+  );

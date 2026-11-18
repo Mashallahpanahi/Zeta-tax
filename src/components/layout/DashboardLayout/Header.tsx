@@ -1,5 +1,6 @@
 
-import { FaRegBell, FaSearch } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
+import BirthdayNotifications from "../../common/BirthdayNotifications";
 
 const Header = () => {
   return (
@@ -24,16 +25,9 @@ const Header = () => {
         </div>
       </div>
 
-      {/* RIGHT: Notifications */}
+      {/* RIGHT: Birthday Notifications */}
       <div className="flex shrink-0 items-center">
-        <button
-          type="button"
-          aria-label="Notifications"
-          className="relative text-gray-400 transition-colors hover:text-blue-firstRate"
-        >
-          <FaRegBell className="text-xl" />
-          <span className="absolute right-0 top-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
-        </button>
+        <BirthdayNotifications />
       </div>
 
     </header>
