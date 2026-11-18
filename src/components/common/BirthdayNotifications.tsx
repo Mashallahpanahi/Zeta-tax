@@ -58,6 +58,12 @@ const getMonthName = (month: number) =>
         month: "long",
     }).format(new Date(2026, month - 1, 1));
 
+// Calculate the age the employee will turn on their birthday
+const calculateAge = (dateOfBirth: string, year: number) => {
+    const birthYear = Number(dateOfBirth.split("-")[0]);
+
+    return year - birthYear;
+};
 // ---------- Component ----------
 
 const BirthdayNotifications = () => {
@@ -459,7 +465,13 @@ const BirthdayNotifications = () => {
                                                 </p>
                                             </div>
 
-                                            <span className="text-lg">🎂</span>
+                                            <div className="flex shrink-0 items-center gap-2">
+                                                <span className="text-xs font-semibold text-gray-600">
+                                                    {calculateAge(employee.date_of_birth, selectedYear)} years
+                                                </span>
+
+                                                <span className="text-lg">🎂</span>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
