@@ -76,15 +76,14 @@ const BirthdayNotifications = () => {
         () => readSeenIds(currentMonth, currentYear),
     );
     const [isOpen, setIsOpen] = useState(false);
-    const [shouldFetch, setShouldFetch] = useState(
-        () => readCache(currentMonth, currentYear) === null,
-    );
+    const [shouldFetch, setShouldFetch] = useState(true);
 
     // Tracks the actual calendar month, independently of the month picker
     const currentCalendarKey = useRef(
         `${currentYear}-${currentMonth}`,
     );
     const notificationRef = useRef<HTMLDivElement>(null);
+    const bellRef = useRef<HTMLDivElement>(null);
 
     const cacheKey = getCacheKey(selectedMonth, selectedYear);
 
@@ -198,10 +197,54 @@ const BirthdayNotifications = () => {
     // ---------- Derived Data ----------
 
     const employees = cachedData?.employees ?? [];
-    const hasUnreadNotifications = employees.some(
+
+    const unreadCount = employees.filter(
         (employee) => !seenIds.includes(employee.registration_id),
-    );
+    ).length;
+
+    const hasUnreadNotifications = unreadCount > 0;
+
     const monthName = getMonthName(selectedMonth);
+
+    // ---------- Bell Ringing Animation ----------
+
+    useEffect(() => {
+        const bell = bellRef.current;
+
+        if (!bell) return;
+
+        // Stop any existing animation
+        const existingAnimation = bell.getAnimations();
+        existingAnimation.forEach((animation) => animation.cancel());
+
+        if (!hasUnreadNotifications) {
+            bell.style.transform = "rotate(0deg)";
+            return;
+        }
+
+        // Start the ringing animation
+        const animation = bell.animate(
+            [
+                { transform: "rotate(0deg)", offset: 0 },
+                { transform: "rotate(14deg)", offset: 0.12 },
+                { transform: "rotate(-12deg)", offset: 0.24 },
+                { transform: "rotate(10deg)", offset: 0.36 },
+                { transform: "rotate(-6deg)", offset: 0.48 },
+                { transform: "rotate(0deg)", offset: 0.60 },
+                { transform: "rotate(0deg)", offset: 1 },
+            ],
+            {
+                duration: 1400,
+                iterations: Infinity,
+                easing: "ease-in-out",
+            },
+        );
+
+        return () => {
+            animation.cancel();
+            bell.style.transform = "rotate(0deg)";
+        };
+    }, [hasUnreadNotifications]);
 
     // ---------- Month Picker ----------
 
@@ -258,23 +301,23 @@ const BirthdayNotifications = () => {
             <button
                 type="button"
                 onClick={handleBellClick}
-                aria-label="Employee birthday notifications"
+                aria-label={`Employee birthday notifications: ${unreadCount} unread`}
                 aria-expanded={isOpen}
-                className="relative flex items-center justify-center rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-blue-firstRate"
+                className="relative flex h-11 w-11 items-center justify-center rounded-full bg-blue-50/70 text-blue-firstRate shadow-sm transition-all duration-200 hover:scale-105 hover:bg-blue-100 hover:shadow-md active:scale-95"
             >
-                <FaRegBell
-                    className={`text-xl ${hasUnreadNotifications
-                        ? "animate-bounce motion-reduce:animate-none"
-                        : ""
-                        }`}
-                />
+                <div
+                    ref={bellRef}
+                    className="inline-flex"
+                    style={{ transformOrigin: "top center" }}
+                >
+                    <FaRegBell className="text-2xl" />
+                </div>
 
-                {hasUnreadNotifications && (
-                    <>
-                        <span className="absolute right-1 top-1 h-2.5 w-2.5 animate-ping rounded-full bg-red-500 opacity-75" />
-
-                        <span className="absolute right-1 top-1 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white" />
-                    </>
+                {/* Unread Notification Count */}
+                {unreadCount > 0 && (
+                    <span className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white ring-2 ring-white">
+                        {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
                 )}
             </button>
 
