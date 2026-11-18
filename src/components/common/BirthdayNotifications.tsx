@@ -439,7 +439,7 @@ const BirthdayNotifications = () => {
                       <div className="flex shrink-0 items-center gap-2">
                         <span className="text-xs font-semibold  text-gray-500">
                           {calculateAge(employee.date_of_birth, selectedYear)}{" "}
-                          years old
+                          years
                         </span>
 
                         <span className="text-lg">🎂</span>
