@@ -14,11 +14,12 @@ import TaxReportsPage from "../pages/TaxReports/TaxReports";
 import Payroll from "../pages/Employees/PayRoll";
 import PayRollHistory from "../pages/Employees/PayRollHistory";
 import OfficeRentPage from "../pages/Expenses/OfficeRent";
-
+import QuickNotes from "../pages/Notes/QuickNotes";
 const AppRoutes = () => (
   <HashRouter>
     <Routes>
       <Route element={<DashboardLayout />}>
+        <Route path="quick-notes" element={<QuickNotes />} />
         <Route path="/" element={<HomePage />} />
         <Route path="Income-transaction" element={<IncomeTransactionPage />} />
         <Route path="employees" element={<EmployeesPage />} />
@@ -34,6 +35,7 @@ const AppRoutes = () => (
         <Route path="office-rent" element={<OfficeRentPage />} />
         <Route path="exchange-to-afn" element={<ExchangeToAFNPage />} />
         <Route path="settings-tax" element={<TaxPage />} />
+
         <Route path="tax-reports" element={<TaxReportsPage />} />
         <Route path="payroll-history" element={<PayRollHistory />} />
       </Route>
