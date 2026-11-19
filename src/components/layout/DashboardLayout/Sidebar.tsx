@@ -20,6 +20,7 @@ import {
   TbReceipt,
 } from "react-icons/tb";
 import { NavLink, useLocation } from "react-router-dom";
+import { FaStickyNote } from "react-icons/fa";
 
 const Sidebar = () => {
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
@@ -122,6 +123,11 @@ const Sidebar = () => {
       path: "/tax-reports",
       label: "Tax Reports",
       icon: <TbChartBar />,
+    },
+    {
+      path: "/quick-notes",
+      label: "Quick Notes",
+      icon: <FaStickyNote />,
     },
     {
       label: "Settings",
