@@ -1,4 +1,3 @@
-import { FaSearch } from "react-icons/fa";
 import BirthdayNotifications from "../../common/BirthdayNotifications";
 
 const Header = () => {
