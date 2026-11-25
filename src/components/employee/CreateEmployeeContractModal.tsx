@@ -1,11 +1,10 @@
-import { useState, type FormEvent, type ChangeEvent } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import {
   createContract,
   getActiveEmployees,
-  type Employee,
   type CreateEmployeeContractType,
+  type Employee,
 } from "../../api/employeeContractApi";
-import { formatNumber } from "../../utils/formatNumber";
 interface Props {
   isOpen: boolean;
   onClose: () => void;
